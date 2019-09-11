@@ -8,7 +8,7 @@ net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 def map_load():
 
-    with open(config.MAP_LOCATION, 'r') as map_device:
+    with open(config.MAP_LOCATION, 'r', encoding='utf-8-sig') as map_device:
         loading_map = json.load(map_device)
 
     return loading_map
@@ -102,7 +102,7 @@ def device_name_init(map, site_name):
                     }
 
         result.append([json_dev, {"primary_ip": dev.get('Address'),
-                                  "addressess": dev.get('Addressess'),
+                                  "addresses": dev.get('Addresses'),
                                   }])
 
     return result
@@ -138,13 +138,13 @@ def setup_ip(create_devices):
         ip_info = net_box.ipam.ip_addresses.create({"address": device.primary_ip,
                                                     "interface": id_System
                                                     })
-        if not(device.addressess is None):
-            for deprecation_dev in device.addressess:
+        if device.addresses is not None:
+            for deprecation_dev in device.addresses:
                 net_box.ipam.ip_addresses.create({"address": deprecation_dev,
                                                   "interface": id_System,
                                                   "status": 3,
                                                   })
-        ip_info.update({'addressess': device.addressess})
+        ip_info.update({'addresses': device.addresses})
         info.update({id_dev: ip_info})
 
     return info
@@ -159,7 +159,7 @@ def set_primary(info):
         dev_data = net_box.dcim.devices.get(dev_id)
 
         dev_data.update({'primary_ip4': ip_info.id})
-        # if not addressess in None:
+        # if not addresses in None:
         #     dev_data.update({})
 
         info_dev.append(net_box.dcim.devices.get(dev_id))
