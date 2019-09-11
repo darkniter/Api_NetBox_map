@@ -18,7 +18,7 @@ def added_device_types(map):
 
     new_dev = []
     for row in map:
-        dev_name = map[row].get('Hint').split('\n')[0]
+        dev_name = map[row].get('Hint').split('\n')[0].split(' ')[0]
         net = net_box.dcim.device_types.get(model=dev_name)
         if net is None:
             new_dev.append(add_dev_type(2, dev_name))
@@ -87,9 +87,9 @@ def device_name_init(map, site_name):
 
         dev = map[init]
 
-        name = dev.get('Name')
+        name = site_name + '_' + dev.get('Name')
 
-        name_type = dev.get('Hint').split('\n')[0]
+        name_type = dev.get('Hint').split('\n')[0].split(' ')[0]
 
         type_id = net_box.dcim.device_types.get(model=name_type).id
 
@@ -170,12 +170,16 @@ def main():
     if len(new_types) > 0:
         init_ports(new_types)
 
-    namespace_map = device_name_init(filtred_map, 'Kabanovo')   # will return dictionary with basic info about devices
+    namespace_map = device_name_init(filtred_map, 'test')   # will return dictionary with basic info about devices
 
     info_ip = add_devices(namespace_map)   # add new devices from map
+
     if len(info_ip) > 0:
+
         primary_info = setup_ip(info_ip)
+
         info_added_device = set_primary(primary_info)
+
         return info_added_device
 
     return None
