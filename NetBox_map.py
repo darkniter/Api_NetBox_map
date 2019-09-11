@@ -21,8 +21,6 @@ def filter(filtration_val):
     return filtred
 
 
-
-
 if __name__ == "__main__":
     ip_site = '10.140.0.'
 
