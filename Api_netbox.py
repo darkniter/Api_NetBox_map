@@ -138,6 +138,12 @@ def setup_ip(create_devices):
         ip_info = net_box.ipam.ip_addresses.create({"address": device.primary_ip,
                                                     "interface": id_System
                                                     })
+        if not(device.addressess is None):
+            for deprecation_dev in device.addressess:
+                net_box.ipam.ip_addresses.create({"address": deprecation_dev,
+                                                  "interface": id_System,
+                                                  "status": 3,
+                                                  })
         ip_info.update({'addressess': device.addressess})
         info.update({id_dev: ip_info})
 
@@ -187,3 +193,20 @@ def main():
 
 if __name__ == "__main__":
     print(main())
+
+# "prefix:status":
+    # {
+    #   "value": 0,
+    #   "label": "Container"
+    # },
+    # {
+    #   "value": 1,
+    #   "label": "Active"
+    # },
+    # {
+    #   "value": 2,
+    #   "label": "Reserved"
+    # },
+    # {
+    #   "value": 3,
+    #   "label": "Deprecated"
