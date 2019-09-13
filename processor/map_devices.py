@@ -1,5 +1,6 @@
 import json
 import os
+import config
 
 
 def from_json(map):
@@ -21,7 +22,7 @@ def filter(filtration_val):
     return filtred
 
 
-if __name__ == "__main__":
+def map_filtration_init():
     ip_site = '10.140.0.'
 
     fname = 'ignored/filtred_map.json'
@@ -32,3 +33,15 @@ if __name__ == "__main__":
     json_file = open(fname, 'a+')
     json_file.write(json.dumps(filter(ip_site)))
     json_file.close()
+
+
+def map_load():
+
+    with open(config.MAP_LOCATION, 'r', encoding='utf-8-sig') as map_device:
+        loading_map = json.load(map_device)
+
+    return loading_map
+
+
+if __name__ == "__main__":
+    map_filtration_init()
