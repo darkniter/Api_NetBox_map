@@ -1,8 +1,4 @@
-import pynetbox
-import config
 from processor import ports, device, device_type, map_devices, ip_adresses
-
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
 def main():
