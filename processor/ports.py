@@ -1,4 +1,4 @@
-from split_pattern import search_pattern
+from processor.utilities.split_pattern import search_pattern
 import config
 import pynetbox
 
@@ -9,11 +9,11 @@ def init_ports(new_dev):
 
     for init in new_dev:
         id_dev = init.id
-        result_ports_list = ports_list([{"name": "[01-24]", "type_port": 800, "menagemant": False},
-                                        {"name": "t[25-28]", "type_port": 1100, "menagemant": False},
-                                        {"name": "test", "type_port": 1200, "menagemant": False},
-                                        {"name": "System", "type_port": 0, "menagemant": True}
-                                        ])
+        if config.DEVICE_TYPES.get(init.model):
+            result_ports_list = ports_list(config.DEVICE_TYPES.get(init.model))
+        else:
+            result_ports_list = ports_list(config.DEVICE_TYPES.get('DES-3028-T1'))
+
         add_dev_temp(id_dev, result_ports_list)
 
     return None
@@ -29,8 +29,8 @@ def ports_list(initiation_list):
 
         for record in init_group:
             result.append({"name": record,
-                           "type_port": ports_group['type_port'],
-                           "menagemant": ports_group['menagemant']})
+                           "type": ports_group.get('type_port'),
+                           "mgmt_only": ports_group.get('mgmt')})
 
     return result
 
@@ -40,8 +40,8 @@ def add_dev_temp(device_type_id, names):
     for name in names:
 
         result = net_box.dcim.interface_templates.create({"device_type": device_type_id,
-                                                          "name": name['name'],
-                                                          "type_port": name['type_port'],
-                                                          "menagemant": name['menagemant']})
+                                                          "name": name["name"],
+                                                          "type": name["type"],
+                                                          "mgmt_only": name["mgmt_only"]})
 
     return result
