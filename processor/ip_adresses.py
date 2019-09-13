@@ -24,12 +24,14 @@ def setup_ip(create_devices):
         ip_info.update({'addresses': device.addresses})
         info.update({id_dev: ip_info})
 
-    return info
+    info_dev = set_primary(info)
+
+    return info_dev
 
 
 def set_primary(info):
 
-    info_dev = []
+    info_dev_with_primapy = []
 
     for dev_id, ip_info in info.items():
 
@@ -39,6 +41,6 @@ def set_primary(info):
         # if not addresses in None:
         #     dev_data.update({})
 
-        info_dev.append(net_box.dcim.devices.get(dev_id))
+        info_dev_with_primapy.append(net_box.dcim.devices.get(dev_id))
 
-    return info_dev
+    return info_dev_with_primapy

@@ -3,10 +3,11 @@ import re
 ALPHANUMERIC_EXPANSION_PATTERN = r'\[((?:[a-zA-Z0-9]+[?:,-])+[a-zA-Z0-9]+)\]'
 
 
-def search_pattern( value):
+def search_pattern(value):
     if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
         return list(expand_alphanumeric_pattern(value))
     return [value]
+
 
 def expand_alphanumeric_pattern(string):
     """
@@ -45,6 +46,7 @@ def parse_alphanumeric_range(string):
             for n in list(range(ord(begin), ord(end) + 1)):
                 values.append(chr(n))
     return values
+
 
 if __name__ == "__main__":
     print(search_pattern('Gi0/[1-3]'))

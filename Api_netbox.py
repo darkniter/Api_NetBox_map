@@ -6,25 +6,23 @@ net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
 def main():
-
+    # init filtred map
     map_devices()
-    # loaded item from map
+    # loaded items from map
     filtred_map = map_devices.map_load()
     # setup missing types
-    new_types = device_type.added_device_types(filtred_map, net_box)
+    new_types = device_type.added_device_types(filtred_map)
 
     if len(new_types) > 0:
-        ports.init_ports(new_types, net_box)
-    # will return dictionary with basic info about devices
-    namespace_map = device.device_name_init(filtred_map, 'test', net_box)
+        # get type list for ports
+        ports.init_ports(new_types)
 
-    info_ip = device.add_devices(namespace_map)   # add new devices from map
+    # add new devices from map
+    info_ip = device.device_name_init(filtred_map, 'test')
 
     if len(info_ip) > 0:
 
-        primary_info = ip_adresses.setup_ip(info_ip)
-
-        info_added_device = ip_adresses.set_primary(primary_info)
+        info_added_device = ip_adresses.setup_ip(info_ip)
 
         return info_added_device
 

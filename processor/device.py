@@ -4,13 +4,13 @@ import pynetbox
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
-def device_name_init(map, site_name):
+def device_name_init(map_dev, site_name):
 
     result = []
 
-    for init in map:
+    for init in map_dev:
 
-        dev = map[init]
+        dev = map_dev[init]
 
         name = site_name + '_' + dev.get('Name')
 
@@ -29,8 +29,9 @@ def device_name_init(map, site_name):
         result.append([json_dev, {"primary_ip": dev.get('Address'),
                                   "addresses": dev.get('Addresses'),
                                   }])
+    create_devices = add_devices(result)
 
-    return result
+    return create_devices
 
 
 def add_devices(json_names):
