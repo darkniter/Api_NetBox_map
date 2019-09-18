@@ -1,6 +1,8 @@
 import json
 import os
 import config
+import csv
+from utilities.transliteration import transliteration as revers
 
 
 def from_json(map):
@@ -43,5 +45,22 @@ def map_load():
     return loading_map
 
 
+def excel_map():
+    map_xl = {}
+    csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
+    with open(config.CSV_PATH, 'r') as xl:
+        result = csv.reader(xl, 'csv')
+        for row in result:
+            row[0] = revers(row[0])
+            if len(row[4]) > 0:
+                row[3] = row[4]
+            map_xl.update({row[3]: [row[0], row[1]]})
+            if len(row[3]) == 0:
+                print({row[3]: [row[0], row[1]]})
+
+    return map_xl
+
+
 if __name__ == "__main__":
-    map_filtration_init()
+    # map_filtration_init()
+    excel_map()
