@@ -1,9 +1,9 @@
-import config
+import processor.config as config
 import pynetbox
-import sites
-import regions
-import map_devices
-from utilities.slugify import slugify
+import processor.sites as sites
+import processor.regions as regions
+import processor.map_devices as map_devices
+from processor.utilities.slugify import slugify
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 parent_region_test = 'Magic_Placement'
@@ -18,9 +18,9 @@ def device_name_init(map_dev, xl_map, region):
 
         dev = map_dev[init]
 
-        ip_adress = dev.get('Address')
+        ip_address = dev.get('Address')
 
-        site_arr = xl_map.get(ip_adress)
+        site_arr = xl_map[0].get(ip_address)
 
         if not site_arr:
             continue
@@ -51,7 +51,7 @@ def device_name_init(map_dev, xl_map, region):
             if region_tmp:
                 region_tmp = region_tmp.slug
 
-        names_regions = '-'.join(names_regions[::-1])
+        names_regions = names_regions[-1]
 
         name_prefix_tmp = dev.get('Name').split('.')
         name_prefix_tmp.remove(name_prefix_tmp[0])
@@ -63,17 +63,22 @@ def device_name_init(map_dev, xl_map, region):
 
         name_type = dev.get('Hint').split('\n')[0].split(' ')[0]
 
-        type_id = net_box.dcim.device_types.get(model=name_type).id
+        type_dev = net_box.dcim.device_types.get(model=name_type)
+        if type_dev:
+            type_id = type_dev.id
+            json_dev = {"name": name,
+                        "device_type": type_id,
+                        "device_role": 2,
+                        "site": site_id,
+                        "tags": ["test-0919", ],
+                        }
 
-        json_dev = {"name": name,
-                    "device_type": type_id,
-                    "device_role": 2,
-                    "site": site_id,
-                    }
+            result.append([json_dev, {"primary_ip": ip_address,
+                                      "addresses": dev.get('Addresses'),
+                                      }])
+        else:
+            print('Не установлен Тип в config для данного устройства:', name_type, name, ip_address)
 
-        result.append([json_dev, {"primary_ip": ip_adress,
-                                  "addresses": dev.get('Addresses'),
-                                  }])
     create_devices = add_devices(result)
 
     return create_devices

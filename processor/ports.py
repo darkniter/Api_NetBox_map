@@ -1,5 +1,5 @@
 from processor.utilities.split_pattern import search_pattern
-import config
+import processor.config as config
 import pynetbox
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
@@ -12,7 +12,8 @@ def init_ports(new_dev):
         if config.DEVICE_TYPES.get(init.model):
             result_ports_list = ports_list(config.DEVICE_TYPES.get(init.model))
         else:
-            result_ports_list = ports_list(config.DEVICE_TYPES.get('DES-3028-T1'))
+            print('Не задана карта портов для :', init.model)
+            continue
 
         add_dev_temp(id_dev, result_ports_list)
 

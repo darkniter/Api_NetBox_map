@@ -1,8 +1,8 @@
 import json
 import os
-import config
+import processor.config as config
 import csv
-from utilities.transliteration import transliterate as revers
+from processor.utilities.transliteration import transliterate as revers
 
 
 def from_json(map):
@@ -24,8 +24,7 @@ def filter(filtration_val):
     return filtred
 
 
-def map_filtration_init():
-    ip_site = '10.140.0.'
+def map_filtration_init(filter_ip='10.140.0.'):
 
     fname = 'ignored/filtred_map.json'
 
@@ -33,7 +32,7 @@ def map_filtration_init():
         os.remove(fname)
 
     json_file = open(fname, 'a+')
-    json_file.write(json.dumps(filter(ip_site)))
+    json_file.write(json.dumps(filter(filter_ip)))
     json_file.close()
 
 
@@ -46,17 +45,25 @@ def map_load():
 
 
 def excel_map():
-    map_xl = {}
-    csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
-    with open(config.CSV_PATH, 'r') as xl:
-        result = csv.reader(xl, 'csv')
-        for row in result:
-            row[0] = revers(row[0])
-            if len(row[4]) > 0:
-                row[3] = row[4]
-            map_xl.update({row[3]: [row[0], row[1]]})
-            if len(row[3]) == 0:
-                print({row[3]: [row[0], row[1]]})
+    if not(os.path.isfile(config.VLAN_PATH_XL)):
+        map_xl = {}
+        csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
+        with open(config.CSV_PATH, 'r') as xl:
+            result = csv.reader(xl, 'csv')
+            for row in result:
+                row[0] = revers(row[0])
+                if len(row[4]) > 0:
+                    row[3] = row[4]
+                map_xl.update({row[3]: [row[0], row[1]]})
+                if len(row[3]) == 0:
+                    print({row[3]: [row[0], row[1]]})
+
+        json_file = open(config.VLAN_PATH_XL, 'a+', encoding='utf-8-sig')
+        json_file.write(json.dumps([map_xl]))
+        json_file.close()
+    else:
+        map_xl = open(config.VLAN_PATH_XL, 'r', encoding='utf-8-sig').read()
+        map_xl = json.loads(map_xl)
 
     return map_xl
 

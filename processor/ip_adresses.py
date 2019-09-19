@@ -1,4 +1,4 @@
-import config
+import processor.config as config
 import pynetbox
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
@@ -13,13 +13,15 @@ def setup_ip(create_devices):
         id_dev = device.id
         id_System = net_box.dcim.interfaces.get(q="System", device_id=id_dev).id
         ip_info = net_box.ipam.ip_addresses.create({"address": device.primary_ip,
-                                                    "interface": id_System
+                                                    "interface": id_System,
+                                                    "tags": ["test-0919", ],
                                                     })
         if device.addresses is not None:
             for deprecation_dev in device.addresses:
                 net_box.ipam.ip_addresses.create({"address": deprecation_dev,
                                                   "interface": id_System,
                                                   "status": 3,
+                                                  "tags": ["test-0919", ],
                                                   })
         ip_info.update({'addresses': device.addresses})
         info.update({id_dev: ip_info})

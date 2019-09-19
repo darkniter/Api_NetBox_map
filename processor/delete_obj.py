@@ -1,7 +1,8 @@
 import config
 import pynetbox
-import processor.finder as finder
-from processor.utilities.slugify import slugify
+import finder
+import os
+from utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
@@ -32,14 +33,17 @@ def delete_object(**kwarg):
         for dev_type in type_list:
             try:
                 dev_type = slugify(dev_type)
-                dev_type_info = net_box.dcim.device_types.get(slug=dev_type)
-                dev_type_id = dev_type_info.id
+                if not(dev_type == '') and net_box.dcim.device_types.get(slug=dev_type):
+
+                    dev_type_info = net_box.dcim.device_types.get(slug=dev_type)
+                    dev_type_id = dev_type_info.id
+
+                    device_list = finder.find_type_child(dev_type)
+
+                    delete_devices(device_list)
+                    print("Type:", dev_type, "type_id:", dev_type_id, "delete:", dev_type_info.delete())
             except pynetbox.core.query.RequestError as e:
                 print(e.error)
-            device_list = finder.find_type_child(dev_type)
-
-            delete_devices(device_list)
-            print("Type:", dev_type, "type_id:", dev_type_id, "delete:", dev_type_info.delete())
 
     def delete_devices(device_list):
         for device_unit in device_list:
@@ -59,3 +63,12 @@ def delete_object(**kwarg):
             print('The function is called incorrectly')
     else:
         print('The function is called without the required arguments')
+
+
+
+if __name__ == "__main__":
+    list_dev = ['DGS-3120-24SC', 'DES-3200-28', 'DES-3200-10', '', ]
+    delete_object(**{'name': 'device_types', 'list': list_dev})
+
+    # if os.path.isfile(config.VLAN_PATH_XL):
+    #     os.remove(config.VLAN_PATH_XL)

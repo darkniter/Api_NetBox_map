@@ -1,7 +1,7 @@
-import config
+import processor.config as config
 import pynetbox
-import regions as regions
-from utilities.slugify import slugify
+import processor.regions as regions
+from processor.utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
@@ -19,7 +19,7 @@ def add_site(name, region):
 
     slug = slugify(name)
 
-    site_info = net_box.dcim.sites.create({"name": name, "slug": slug, "region": region_id})
+    site_info = net_box.dcim.sites.create({"name": name, "slug": slug, "region": region_id, "tags": ["test-0919", ], })
 
     print(site_info)
     return site_info

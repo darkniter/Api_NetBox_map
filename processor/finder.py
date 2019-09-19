@@ -1,6 +1,6 @@
 import config
 import pynetbox
-from processor.utilities.slugify import slugify
+from utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
@@ -20,3 +20,20 @@ def find_type_child(name):
         return device_list
     except pynetbox.core.query.RequestError as e:
         print(e.error)
+
+
+def find_tag_group(tag):
+
+    tag_object_list = {'prefix': [], 'vlans': [], 'device': []}
+
+    for prefix in net_box.ipam.prefixes.filter(tag=tag):
+        tag_object_list['prefix'].append(prefix)
+    for vlans in net_box.ipam.vlans.filter(tag=tag):
+        tag_object_list['vlans'].append(vlans)
+    for device in net_box.dcim.devices.filter(tag=tag):
+        tag_object_list['device'].append(device)
+
+    return tag_object_list
+
+
+
