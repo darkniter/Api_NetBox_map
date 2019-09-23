@@ -36,16 +36,16 @@ def map_filtration_init(filter_ip='10.140.0.'):
     json_file.close()
 
 
-def map_load():
+def map_load(fname):
 
-    with open(config.MAP_LOCATION, 'r', encoding='utf-8-sig') as map_device:
+    with open(fname, 'r', encoding='utf-8-sig') as map_device:
         loading_map = json.load(map_device)
 
     return loading_map
 
 
-def excel_map():
-    if not(os.path.isfile(config.VLAN_PATH_XL)):
+def excel_map(fname):
+    if not(os.path.isfile(fname)):
         map_xl = {}
         csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
         with open(config.CSV_PATH, 'r') as xl:
@@ -58,11 +58,11 @@ def excel_map():
                 if len(row[3]) == 0:
                     print({row[3]: [row[0], row[1]]})
 
-        json_file = open(config.VLAN_PATH_XL, 'a+', encoding='utf-8-sig')
+        json_file = open(fname, 'a+', encoding='utf-8-sig')
         json_file.write(json.dumps([map_xl]))
         json_file.close()
     else:
-        map_xl = open(config.VLAN_PATH_XL, 'r', encoding='utf-8-sig').read()
+        map_xl = open(fname, 'r', encoding='utf-8-sig').read()
         map_xl = json.loads(map_xl)
 
     return map_xl

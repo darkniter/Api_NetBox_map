@@ -17,8 +17,8 @@ def main(region=None):
 
     map_devices.map_filtration_init(filter_ip)
     # loaded items from map
-    filtred_map = map_devices.map_load()
-    xl_map = map_devices.excel_map()
+    filtred_map = map_devices.map_load(config.MAP_LOCATION)
+    xl_map = map_devices.excel_map(config.VLAN_PATH_XL)
 
     # setup missing types
     new_types = device_type.add_device_types(filtred_map)

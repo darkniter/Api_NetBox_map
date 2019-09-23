@@ -13,8 +13,15 @@ def add_device_types(map_dev):
         net = net_box.dcim.device_types.get(model=dev_name)
         configured_ports = config.DEVICE_TYPES.get(dev_name)
 
+        for vendor in config.VENDORS:
+            if dev_name[0:3:1] in config.VENDORS[vendor]:
+                manufacturer = net_box.dcim.manufacturers.get(name=vendor).id
+                break
+            else:
+                manufacturer = 2
+
         if net is None and configured_ports:
-            new_dev.append(add_device_type(2, dev_name))
+            new_dev.append(add_device_type(manufacturer, dev_name))
         elif not configured_ports:
             print('нет конфигурации портов:', dev_name)
 
