@@ -11,6 +11,13 @@ def main():
     map_dev = open('ignored/result_map.json', 'r')
     map_dev_all = json.load(map_dev)
     map_group = filter_by_group_type(map_dev_all, '34')
+    
+    sorted_group, result_lenght = result(map_group)
+
+    return sorted_group, result_lenght
+
+
+def result(map_group):
     result_lenght = len(map_group)
 
     sorted_group = sort_group(map_group)
@@ -20,7 +27,6 @@ def main():
             sorted_group.update(untwin(sorted_group.pop(lists), lists))
         else:
             sorted_group.update(unlist(sorted_group.pop(lists), lists))
-
     return sorted_group, result_lenght
 
 

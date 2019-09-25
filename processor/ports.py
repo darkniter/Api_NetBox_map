@@ -45,19 +45,26 @@ def console_ports(id_dev, ports_names):
     init_console_ports_name = search_pattern(ports_names)
     for port in init_console_ports_name:
         net_box.dcim.console_port_templates.create({
-                                            "device_type": id_dev,
-                                            "name": port,
-                                            })
+                                                    "device_type": id_dev,
+                                                    "name": port,
+                                                    })
     return
 
 
 def add_dev_temp(device_type_id, names):
 
     for name in names:
-
-        result = net_box.dcim.interface_templates.create({"device_type": device_type_id,
-                                                          "name": name["name"],
-                                                          "type": name["type"],
-                                                          "mgmt_only": name["mgmt_only"]})
-
+        if name.get["mgmt_only"]:
+            result = net_box.dcim.interface_templates.create({
+                                                                "device_type": device_type_id,
+                                                                "name": name["name"],
+                                                                "type": name["type"],
+                                                                "mgmt_only": name["mgmt_only"]
+                                                                })
+        else:
+            result = net_box.dcim.interface_templates.create({
+                                                                "device_type": device_type_id,
+                                                                "name": name["name"],
+                                                                "type": name["type"],
+                                                                })
     return result
