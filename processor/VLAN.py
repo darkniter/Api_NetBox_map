@@ -32,8 +32,10 @@ def main_add_VLANs(regions):
             for vlan in vlans_list:
                 try:
                     tmp = net_box.ipam.vlans.get(name=vlan['name'])
-                    VLANs.append(tmp)
-                    if not(tmp):
+
+                    if tmp:
+                        VLANs.append(tmp)
+                    elif not(tmp):
                         VLANs.append(net_box.ipam.vlans.create(vlan))
                 except ValueError:
                     print(vlan, 'Вернул несколько значений. ДУБЛЬ')

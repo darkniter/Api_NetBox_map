@@ -5,7 +5,7 @@ from processor.utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
-def add_site(name, region):
+def add_site(trans_name, name, region):
     backup_region = region
     parent_region_test = 'Magic_Placement'
     region_id = None
@@ -19,7 +19,13 @@ def add_site(name, region):
 
     slug = slugify(name)
 
-    site_info = net_box.dcim.sites.create({"name": name, "slug": slug, "region": region_id, "tags": ["test-0919", ], })
+    site_info = net_box.dcim.sites.create({
+        "name": name,
+        "slug": slug,
+        "region": region_id,
+        "tags": ["test-0919", ],
+        "description": trans_name,
+     })
 
     print(site_info)
     return site_info

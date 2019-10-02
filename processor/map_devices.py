@@ -11,20 +11,20 @@ def from_json(map):
     return python_map
 
 
-def filter(filtration_val):
+def filter(filtration_val=''):
     filtred = {}
 
     python_map = from_json('ignored/result_map.json')
 
     for row in python_map:
-        finded = python_map[row].get('Address')
+        finded = python_map[row].get('address')
         if finded and finded.startswith(filtration_val):
             filtred.update({row: python_map[row]})
     print('')
     return filtred
 
 
-def map_filtration_init(filter_ip='10.140.0.'):
+def map_filtration_init(filter_ip=None):
 
     fname = 'ignored/filtred_map.json'
 
@@ -51,15 +51,16 @@ def excel_map(fname):
         with open(config.CSV_PATH, 'r') as xl:
             result = csv.reader(xl, 'csv')
             for row in result:
+                init_name = row[0]
                 row[0] = revers(row[0])
                 if len(row[4]) > 0:
                     row[3] = row[4]
-                map_xl.update({row[3]: [row[0], row[1]]})
+                map_xl.update({row[3]: [row[0], row[1], init_name]})
                 if len(row[3]) == 0:
                     print({row[3]: [row[0], row[1]]})
 
         json_file = open(fname, 'a+', encoding='utf-8-sig')
-        json_file.write(json.dumps([map_xl]))
+        json_file.write(json.dumps(map_xl))
         json_file.close()
     else:
         map_xl = open(fname, 'r', encoding='utf-8-sig').read()
@@ -80,7 +81,7 @@ def VLAN_map(filter_region=None):
             elif len(row) == 14:
                 regions[revers(row[13])].append(row)
             else:
-                regions.update({'Hint': row})
+                regions.update({'description': row})
 
     if (os.path.isfile(config.VLAN_PATH_JSON)):
         os.remove(config.VLAN_PATH_JSON)
@@ -89,25 +90,25 @@ def VLAN_map(filter_region=None):
     json_file.write(json.dumps(regions))
     json_file.close()
 
-    hint = regions.pop('Hint')
-    regions = VLAN_map_format(regions, hint, filter_region)
+    description = regions.pop('description')
+    regions = VLAN_map_format(regions, description, filter_region)
 
     return regions
 
 
-def VLAN_map_format(regions, hint, filter_region=None):
+def VLAN_map_format(regions, description, filter_region=None):
 
     for row in regions:
-        if not row == 'Hint':
+        if not row == 'description':
             for site in regions[row]:
                 site[11] = '-'.join([site[9].split('-')[0], 'cctv', site[11]])
                 site[1] = revers(site[1])
                 site[13] = revers(site[13])
-                site[11] = '-'.join([site[11], site.pop(12) + hint[12]])
-                site[9] = '-'.join([site[9], site.pop(10) + hint[10]])
-                site[7] = '-'.join([site[7], site.pop(8) + hint[8]])
-                site[5] = '-'.join([site[5], site.pop(6) + hint[6]])
-                site[3] = '-'.join([site[3], site.pop(4) + hint[4]])
+                site[11] = '-'.join([site[11], site.pop(12) + description[12]])
+                site[9] = '-'.join([site[9], site.pop(10) + description[10]])
+                site[7] = '-'.join([site[7], site.pop(8) + description[8]])
+                site[5] = '-'.join([site[5], site.pop(6) + description[6]])
+                site[3] = '-'.join([site[3], site.pop(4) + description[4]])
     if filter_region:
         regions = {revers(filter_region): regions[revers(filter_region)]}
 

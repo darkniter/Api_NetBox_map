@@ -16,3 +16,4 @@ __pycache__/
 .flake8
 ignored/
 xml/
+test.py

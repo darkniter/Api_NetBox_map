@@ -5,7 +5,9 @@ net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
 def add_regions(name, parent=None):
-
+    name = name.strip()
+    if parent:
+        parent = parent.strip()
     slug = slugify(name)
 
     if parent:

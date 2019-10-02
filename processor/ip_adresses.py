@@ -11,7 +11,9 @@ def setup_ip(create_devices):
     for device in create_devices:
 
         id_dev = device.id
-        id_System = net_box.dcim.interfaces.get(q="System", device_id=id_dev).id
+        vendor = device.device_type.manufacturer.name
+        id_System = net_box.dcim.interfaces.get(q=config.VENDORPORTS.get(vendor), device_id=id_dev).id
+
         ip_info = net_box.ipam.ip_addresses.create({"address": device.primary_ip,
                                                     "interface": id_System,
                                                     "tags": ["test-0919", ],

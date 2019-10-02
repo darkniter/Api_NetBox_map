@@ -1,7 +1,6 @@
 import config
 import pynetbox
 import finder
-import os
 from utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
@@ -65,9 +64,11 @@ def delete_object(**kwarg):
         print('The function is called without the required arguments')
 
 
-
 if __name__ == "__main__":
-    list_dev = ['DGS-3120-24SC', 'DES-3200-28', 'DES-3200-10', '', ]
+    list_dev = []
+    for vendor in config.DEVICE_TYPES:
+        for model in config.DEVICE_TYPES[vendor]:
+            list_dev.append(model)
     delete_object(**{'name': 'device_types', 'list': list_dev})
 
     # if os.path.isfile(config.VLAN_PATH_XL):

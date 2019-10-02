@@ -93,5 +93,5 @@ def transliterate(text):
 
 
 if __name__ == "__main__":
-    transliterate('40 лет Октября')
+    transliterate('Коммунистическая')
 # Lor5m 9psum 4olor s9t 1m5t

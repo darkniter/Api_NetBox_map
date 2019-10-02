@@ -4,6 +4,7 @@ import processor.sites as sites
 import processor.regions as regions
 import processor.map_devices as map_devices
 from processor.utilities.slugify import slugify
+from processor.utilities.transliteration import transliterate as revers
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 parent_region_test = 'Magic_Placement'
@@ -11,6 +12,7 @@ parent_region_test = 'Magic_Placement'
 
 def device_name_init(map_dev, xl_map, region):
 
+    region = region[1].strip()
     result = []
     region = slugify(region)
 
@@ -18,16 +20,19 @@ def device_name_init(map_dev, xl_map, region):
 
         dev = map_dev[init]
 
-        ip_address = dev.get('Address')
+        ip_address = dev.get('address')
 
-        site_arr = xl_map[0].get(ip_address)
+        site_arr = xl_map.get(ip_address)
 
         if not site_arr:
             continue
 
-        site_name = site_arr[0] + '-' + site_arr[1].split('.')[0]
-
-        site_info = net_box.dcim.sites.get(name=site_name)
+        site_name = (site_arr[0] + '-' + site_arr[1].split('.')[0]).strip()
+        trans_name = site_arr[2]
+        site_name = revers(site_name)
+        site_info = net_box.dcim.sites.get(name=site_name.strip())
+        if not site_info:
+            site_info = net_box.dcim.sites.get(slug=slugify(site_name.strip()))
         region_info = net_box.dcim.regions.get(slug=region)
 
         if not region_info:
@@ -37,7 +42,7 @@ def device_name_init(map_dev, xl_map, region):
             site = site_info
             site_id = site.id
         else:
-            site = sites.add_site(site_name, region)
+            site = sites.add_site(trans_name, site_name, region)
             site_id = site.id
 
         names_regions = []
@@ -53,7 +58,7 @@ def device_name_init(map_dev, xl_map, region):
 
         names_regions = names_regions[-1]
 
-        name_prefix_tmp = dev.get('Name').split('.')
+        name_prefix_tmp = dev.get('name').split('.')
         name_prefix_tmp.remove(name_prefix_tmp[0])
         name_prefix = '.'.join(name_prefix_tmp)
 
@@ -61,27 +66,30 @@ def device_name_init(map_dev, xl_map, region):
         if name_prefix:
             name = name + '.' + name_prefix
 
-        name_type = dev.get('Hint').split('\n')[0].split(' ')[0]
+        name_type = dev.get('description').split('\n')[0].split(' ')[0]
 
-        type_dev = net_box.dcim.device_types.get(model=name_type)
+        type_dev = net_box.dcim.device_types.get(model='T1-' + name_type)
         if type_dev:
             type_id = type_dev.id
+            # vendor_id = type_dev.manufacturer.id
             json_dev = {"name": name,
                         "device_type": type_id,
                         "device_role": 2,
                         "site": site_id,
                         "tags": ["test-0919", ],
+                        "comments": dev.get('description'),
                         }
 
-            result.append([json_dev, {"primary_ip": ip_address,
-                                      "addresses": dev.get('Addresses'),
-                                      }])
+            result.append([json_dev, {
+                                        "primary_ip": ip_address,
+                                        "addresses": dev.get('addresses'),
+                                        }])
         else:
             print('Не установлен Тип в config для данного устройства:', name_type, name, ip_address)
 
-    create_devices = add_devices(result)
+    create_dev = add_devices(result)
 
-    return create_devices
+    return create_dev
 
 
 def add_devices(json_names):
