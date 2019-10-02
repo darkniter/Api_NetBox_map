@@ -4,20 +4,30 @@ from utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
-def find_site_child(name):
+def find_child_devices(name, func_mod):
     try:
         name = slugify(name)
-        device_list = net_box.dcim.devices.filter(site=name)
+        if func_mod == "dev_type":
+            device_list = net_box.dcim.devices.filter(model=name)
+        elif func_mod == "site":
+            device_list = net_box.dcim.devices.filter(site=name)
         return device_list
     except pynetbox.core.query.RequestError as e:
         print(e.error)
 
 
-def find_type_child(name):
+def find_child_regions(id_parent):
     try:
-        name = slugify(name)
-        device_list = net_box.dcim.devices.filter(model=name)
-        return device_list
+        regions_list = net_box.dcim.regions.filter(parent_id=id_parent)
+        return regions_list
+    except pynetbox.core.query.RequestError as e:
+        print(e.error)
+
+
+def find_child_sites(id_region):
+    try:
+        sites_list = net_box.dcim.sites.filter(region_id=id_region)
+        return sites_list
     except pynetbox.core.query.RequestError as e:
         print(e.error)
 
@@ -34,6 +44,3 @@ def find_tag_group(tag):
         tag_object_list['device'].append(device)
 
     return tag_object_list
-
-
-
