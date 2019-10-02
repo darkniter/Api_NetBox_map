@@ -22,33 +22,29 @@ def delete_object(**kwarg):
 
         for site in sites_list:
             try:
-                site = slugify(site)
-                site_info = net_box.dcim.sites.get(slug=site)
+                site_info = net_box.dcim.sites.get(slug=slugify(site))
             except pynetbox.core.query.RequestError as e:
                 print(e.error)
 
             if site_info:
-                site_id = site_info.id
 
-                device_list = finder.find_child_devices(site, 'site')
+                device_list = finder.find_child_devices(site_info.slug, 'site')
 
                 delete_devices(device_list)
 
-                print("Site:", site, "site_id:", site_id, "delete:", site_info.delete())
+                print("Site:", site_info.name, "site_id:", site_info.id, "delete:", site_info.delete())
 
     def delete_device_types(type_list):
         for dev_type in type_list:
             try:
-                dev_type = slugify(dev_type)
                 if not(dev_type == '') and net_box.dcim.device_types.get(slug=dev_type):
 
-                    dev_type_info = net_box.dcim.device_types.get(slug=dev_type)
-                    dev_type_id = dev_type_info.id
+                    dev_type_info = net_box.dcim.device_types.get(slug=slugify(dev_type))
 
                     device_list = finder.find_child_devices(dev_type, 'dev_type')
 
                     delete_devices(device_list)
-                    print("Type:", dev_type, "type_id:", dev_type_id, "delete:", dev_type_info.delete())
+                    print("Type:", dev_type_info.name, "type_id:", dev_type_info.id, "delete:", dev_type_info.delete())
             except pynetbox.core.query.RequestError as e:
                 print(e.error)
 
