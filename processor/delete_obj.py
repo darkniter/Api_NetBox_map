@@ -37,14 +37,14 @@ def delete_object(**kwarg):
     def delete_device_types(type_list):
         for dev_type in type_list:
             try:
-                if not(dev_type == '') and net_box.dcim.device_types.get(slug=dev_type):
+                if not(dev_type == '') and net_box.dcim.device_types.get(slug=slugify(dev_type)):
 
                     dev_type_info = net_box.dcim.device_types.get(slug=slugify(dev_type))
 
                     device_list = finder.find_child_devices(dev_type, 'dev_type')
 
                     delete_devices(device_list)
-                    print("Type:", dev_type_info.name, "type_id:", dev_type_info.id, "delete:", dev_type_info.delete())
+                    print("Type:", dev_type_info.model, "type_id:", dev_type_info.id, "delete:", dev_type_info.delete())
             except pynetbox.core.query.RequestError as e:
                 print(e.error)
 
@@ -79,7 +79,8 @@ def delete_object(**kwarg):
                 if len(child_sites) > 0:
                     delete_sites(child_sites, 'child')
 
-                print("Region:", region_info.name, "region-id:", region_info.id, "delete:", region_info.delete())
+                if func_mod == 'child':
+                    print("Region:", region_info.name, "region-id:", region_info.id, "delete:", region_info.delete())
 
     if def_name and objects_list:
         if def_name == 'sites':
@@ -101,12 +102,13 @@ def delete_object(**kwarg):
 
 
 if __name__ == "__main__":
-    pass
-    # list_dev = []
-    # for vendor in config.DEVICE_TYPES:
-    #     for model in config.DEVICE_TYPES[vendor]:
-    #         list_dev.append(model)
-    # list_regions = ['kb',]
-    # delete_object(**{'name': 'regions', 'list': list_regions})
+    # list_dev = ['DES-1210-10/ME']
+    # # for vendor in config.DEVICE_TYPES:
+    # #     for model in config.DEVICE_TYPES[vendor]:
+    # #         list_dev.append(model)
+    # delete_object(**{'name': 'device_types', 'list': list_dev})
+    list_regions = ['ku', 'kb', ]
+    delete_object(**{'name': 'regions', 'list': list_regions})
+    # delete_object(**{'name': 'devices', 'list': ['']})
     # if os.path.isfile(config.VLAN_PATH_XL):
     #     os.remove(config.VLAN_PATH_XL)

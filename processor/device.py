@@ -11,7 +11,7 @@ parent_region_test = 'Magic_Placement'
 
 
 def device_name_init(map_dev, xl_map, region):
-
+    ip_mask = '/' + region[3].split('/')[-1]
     region = region[1].strip()
     result = []
     region = slugify(region)
@@ -23,6 +23,13 @@ def device_name_init(map_dev, xl_map, region):
         ip_address = dev.get('address')
 
         site_arr = xl_map.get(ip_address)
+
+        if (dev.get('description') and site_arr):
+            dev.update({'description': "\n".join([
+                dev.get('description'),
+                '\n:________________:\n',
+                *site_arr[3]
+                ])})
 
         if not site_arr:
             continue
@@ -81,7 +88,7 @@ def device_name_init(map_dev, xl_map, region):
                         }
 
             result.append([json_dev, {
-                                        "primary_ip": ip_address,
+                                        "primary_ip": ip_address + ip_mask,
                                         "addresses": dev.get('addresses'),
                                         }])
         else:

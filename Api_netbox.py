@@ -53,6 +53,10 @@ def load_conf_dev_type():
 
 
 if __name__ == "__main__":
-    main('Кабаново')
+    regions = ['Кабаново',
+               'Куровское',
+               ]
+    for load in regions:
+        main(load)
     # main()
     # load_conf_dev_type()

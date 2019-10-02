@@ -44,20 +44,36 @@ def map_load(fname):
     return loading_map
 
 
+def hint_init(hint, val):
+    result = []
+    count = -1
+    if len(hint) == len(val):
+        for element in hint.keys():
+            count += 1
+            result.append(element + ': ' + val[count])
+        return result
+
+
 def excel_map(fname):
     if not(os.path.isfile(fname)):
         map_xl = {}
         csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
         with open(config.CSV_PATH, 'r') as xl:
             result = csv.reader(xl, 'csv')
+            header = []
             for row in result:
                 init_name = row[0]
-                row[0] = revers(row[0])
-                if len(row[4]) > 0:
-                    row[3] = row[4]
-                map_xl.update({row[3]: [row[0], row[1], init_name]})
-                if len(row[3]) == 0:
-                    print({row[3]: [row[0], row[1]]})
+                if init_name == 'P_STREET':
+                    header = row[7: len(row): 1]
+                else:
+                    hint = {}
+                    hint = hint_init({}.fromkeys([*header]), row[7:len(row):1])
+                    row[0] = revers(row[0])
+                    if len(row[4]) > 0:
+                        row[3] = row[4]
+                    map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
+                    if len(row[3]) == 0:
+                        print({row[3]: [row[0], row[1]]})
 
         json_file = open(fname, 'a+', encoding='utf-8-sig')
         json_file.write(json.dumps(map_xl))
