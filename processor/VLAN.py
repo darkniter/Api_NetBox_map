@@ -104,6 +104,6 @@ def region_add_from_vlan(regions):
 
 
 if __name__ == "__main__":
-    region_Vlan_map = map_devices.VLAN_map('Куровское')
+    region_Vlan_map = map_devices.VLAN_map('Ликино-Дулёво')
     region_add_from_vlan(region_Vlan_map)
     main_add_VLANs(region_Vlan_map)

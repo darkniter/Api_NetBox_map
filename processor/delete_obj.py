@@ -2,7 +2,7 @@ import config
 import pynetbox
 import finder
 from utilities.slugify import slugify
-from utilities.transliteration import transliterate as revers
+from utilities.transliteration import transliterate
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
@@ -66,7 +66,7 @@ def delete_object(**kwarg):
             else:
                 region_info = net_box.dcim.regions.get(name=region)
                 if not region_info:
-                    region_info = net_box.dcim.regions.get(name=revers(region))
+                    region_info = net_box.dcim.regions.get(name=transliterate(region))
 
             if region_info:
                 child_regions = finder.find_child_regions(region_info.id)
@@ -102,12 +102,17 @@ def delete_object(**kwarg):
 
 
 if __name__ == "__main__":
-    # list_dev = ['DES-1210-10/ME']
-    # # for vendor in config.DEVICE_TYPES:
-    # #     for model in config.DEVICE_TYPES[vendor]:
-    # #         list_dev.append(model)
+    # list_dev = ['T1-DIR-100']
+    # for vendor in config.DEVICE_TYPES:
+    #     for model in config.DEVICE_TYPES[vendor]:
+    #         list_dev.append(model)
     # delete_object(**{'name': 'device_types', 'list': list_dev})
-    list_regions = ['ku', 'kb', ]
+    list_regions = [
+        'kb',
+        'ld',
+        'ku',
+        'dm',
+         ]
     delete_object(**{'name': 'regions', 'list': list_regions})
     # delete_object(**{'name': 'devices', 'list': ['']})
     # if os.path.isfile(config.VLAN_PATH_XL):

@@ -3,8 +3,9 @@ import pynetbox
 import processor.sites as sites
 import processor.regions as regions
 import processor.map_devices as map_devices
+import re
 from processor.utilities.slugify import slugify
-from processor.utilities.transliteration import transliterate as revers
+from processor.utilities.transliteration import transliterate
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 parent_region_test = 'Magic_Placement'
@@ -25,18 +26,16 @@ def device_name_init(map_dev, xl_map, region):
         site_arr = xl_map.get(ip_address)
 
         if (dev.get('description') and site_arr):
-            dev.update({'description': "\n".join([
-                dev.get('description'),
-                '\n:________________:\n',
-                *site_arr[3]
-                ])})
+            site_arr[3].update({'hint': dev.get('description')})
+            desc_tmp = site_arr[3]
+            dev['description'] = desc_tmp
 
         if not site_arr:
             continue
-
-        site_name = (site_arr[0] + '-' + site_arr[1].split('.')[0]).strip()
+        number_house = re.sub('[,/]', '_', dev.get('name').split()[-1].split('.')[0])
+        site_name = (site_arr[0] + ' ' + number_house).strip()
         trans_name = site_arr[2]
-        site_name = revers(site_name)
+        site_name = transliterate(site_name)
         site_info = net_box.dcim.sites.get(name=site_name.strip())
         if not site_info:
             site_info = net_box.dcim.sites.get(slug=slugify(site_name.strip()))
@@ -49,7 +48,7 @@ def device_name_init(map_dev, xl_map, region):
             site = site_info
             site_id = site.id
         else:
-            site = sites.add_site(trans_name, site_name, region)
+            site = sites.add_site(trans_name + ' ' + number_house, site_name, region)
             site_id = site.id
 
         names_regions = []
@@ -73,18 +72,27 @@ def device_name_init(map_dev, xl_map, region):
         if name_prefix:
             name = name + '.' + name_prefix
 
-        name_type = dev.get('description').split('\n')[0].split(' ')[0]
+        name_type = dev.get('description')['hint'].split('\n')[0].split(' ')[0]
 
         type_dev = net_box.dcim.device_types.get(model='T1-' + name_type)
         if type_dev:
             type_id = type_dev.id
-            # vendor_id = type_dev.manufacturer.id
+            description = dev.get('description')
+            if description['P_REMOVED'] == '1':
+                description['P_REMOVED'] = True
+            elif description['P_REMOVED'] == '0':
+                description['P_REMOVED'] = False
+            if description['P_TRANSIT'] == '1':
+                description['P_TRANSIT'] = True
+            elif description['P_TRANSIT'] == '0':
+                description['P_TRANSIT'] = False
             json_dev = {"name": name,
                         "device_type": type_id,
                         "device_role": 2,
                         "site": site_id,
                         "tags": ["test-0919", ],
-                        "comments": dev.get('description'),
+                        "comments": description.pop('hint'),
+                        "custom_fields": description
                         }
 
             result.append([json_dev, {

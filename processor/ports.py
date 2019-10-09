@@ -22,7 +22,22 @@ def init_ports(new_dev):
             if result_ports_list.get('consoles'):
                 console_ports(id_dev, result_ports_list.get('consoles'))
 
+            if result_ports_list.get('power_ports'):
+                power_ports(id_dev, result_ports_list.get('power_ports'))
+
     return None
+
+
+def power_ports(id_dev, power):
+    if isinstance(power, list):
+        for port in power:
+            port.update({"device_type": id_dev})
+            net_box.dcim.power_port_templates.create(
+                port
+            )
+    else:
+        power.update({"device_type": id_dev})
+        net_box.dcim.power_port_templates.create(power)
 
 
 def ports_list(initiation_list):

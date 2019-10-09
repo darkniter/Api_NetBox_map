@@ -12,23 +12,26 @@ def setup_ip(create_devices):
 
         id_dev = device.id
         vendor = device.device_type.manufacturer.name
-        id_System = net_box.dcim.interfaces.get(q=config.VENDORPORTS.get(vendor), device_id=id_dev).id
+        if device.device_type.model in config.DEVICE_TYPES.get(vendor):
+            id_System = net_box.dcim.interfaces.get(q=config.VENDORPORTS.get(vendor), device_id=id_dev).id
 
-        ip_info = net_box.ipam.ip_addresses.create({"address": device.primary_ip,
-                                                    "interface": id_System,
-                                                    "tags": ["test-0919", ],
+            ip_info = net_box.ipam.ip_addresses.create({
+                                                        "address": device.primary_ip,
+                                                        "interface": id_System,
+                                                        "tags": ["test-0919", ],
+                                                        })
+            if device.addresses is not None:
+                for deprecation_dev in device.addresses:
+                    net_box.ipam.ip_addresses.create({
+                                                        "address": deprecation_dev,
+                                                        "interface": id_System,
+                                                        "status": 3,
+                                                        "tags": ["test-0919", ],
                                                     })
-        if device.addresses is not None:
-            for deprecation_dev in device.addresses:
-                net_box.ipam.ip_addresses.create({"address": deprecation_dev,
-                                                  "interface": id_System,
-                                                  "status": 3,
-                                                  "tags": ["test-0919", ],
-                                                  })
-        ip_info.update({'addresses': device.addresses})
-        info.update({id_dev: ip_info})
+            ip_info.update({'addresses': device.addresses})
+            info.update({id_dev: ip_info})
 
-    info_dev = set_primary(info)
+            info_dev = set_primary(info)
 
     return info_dev
 

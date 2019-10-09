@@ -1,7 +1,7 @@
 from processor import ports, device, device_type, map_devices, ip_adresses, VLAN
 import processor.config as config
 import pynetbox
-from processor.utilities.transliteration import transliterate as revers
+from processor.utilities.transliteration import transliterate
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
@@ -13,7 +13,7 @@ def main(region=None):
 
     VLAN.main_add_VLANs(vlans_map)
     if region:
-        for street in vlans_map[revers(region)]:
+        for street in vlans_map[transliterate(region)]:
             filter_ip = street[3].split('-')[-1].split('.')
 
             filter_ip = ".".join([filter_ip[0], filter_ip[1], filter_ip[2], ''])
@@ -53,8 +53,11 @@ def load_conf_dev_type():
 
 
 if __name__ == "__main__":
-    regions = ['Кабаново',
-               'Куровское',
+    regions = [
+                # 'Кабаново',
+                # 'Куровское',
+                'Демихово',
+                # 'Ликино-Дулёво',
                ]
     for load in regions:
         main(load)

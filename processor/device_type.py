@@ -32,7 +32,8 @@ def add_device_types(option='prod', map_dev=None,):
                 if configured_ports:
                     break
             else:
-                manufacturer = 2
+                manufacturer = None
+                configured_ports = None
 
         if net is None and configured_ports:
             new_dev.append(add_device_type(manufacturer, dev_name))
