@@ -112,7 +112,7 @@ if __name__ == "__main__":
         'ld',
         'ku',
         'dm',
-         ]
+        'oz']
     delete_object(**{'name': 'regions', 'list': list_regions})
     # delete_object(**{'name': 'devices', 'list': ['']})
     # if os.path.isfile(config.VLAN_PATH_XL):

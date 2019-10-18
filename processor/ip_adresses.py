@@ -5,11 +5,9 @@ net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
 def setup_ip(create_devices):
-
-    info = {}
-
+    info_dev = []
     for device in create_devices:
-
+        info = {}
         id_dev = device.id
         vendor = device.device_type.manufacturer.name
         if device.device_type.model in config.DEVICE_TYPES.get(vendor):
@@ -31,7 +29,7 @@ def setup_ip(create_devices):
             ip_info.update({'addresses': device.addresses})
             info.update({id_dev: ip_info})
 
-            info_dev = set_primary(info)
+            info_dev.append(set_primary(info))
 
     return info_dev
 

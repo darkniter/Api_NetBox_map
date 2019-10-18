@@ -14,7 +14,7 @@ def from_json(map):
 def filter(filtration_val=''):
     filtred = {}
 
-    python_map = from_json('ignored/result_map.json')
+    python_map = from_json(config.DEVICE_FILTRED)
 
     for row in python_map:
         finded = python_map[row].get('address')
@@ -26,7 +26,7 @@ def filter(filtration_val=''):
 
 def map_filtration_init(filter_ip=None):
 
-    fname = 'ignored/filtred_map.json'
+    fname = config.MAP_LOCATION
 
     if (os.path.isfile(fname)):
         os.remove(fname)
@@ -91,10 +91,10 @@ def VLAN_map(filter_region=None):
         result = csv.reader(xl, 'csv')
 
         for row in result:
-            if row[0] == row[1]:
+            if row[0] != '' and row[1] == '':
                 regions.update({transliterate(row[0]): []})
-            elif len(row) == 14:
-                regions[transliterate(row[13])].append(row)
+            elif len(row) == 16 and transliterate(row[15]) in regions:
+                regions[transliterate(row[15])].append(row)
             else:
                 regions.update({'description': row})
 
@@ -123,7 +123,7 @@ def VLAN_map_format(regions, description, filter_region=None):
                 site[9] = '-'.join([site[9], site.pop(10) + description[10]])
                 site[7] = '-'.join([site[7], site.pop(8) + description[8]])
                 site[5] = '-'.join([site[5], site.pop(6) + description[6]])
-                site[3] = '-'.join([site[3], site.pop(4) + description[4]])
+                site[3] = '-'.join([site[3], site.pop(4) + site[8]])
     if filter_region:
         regions = {transliterate(filter_region): regions[transliterate(filter_region)]}
 
