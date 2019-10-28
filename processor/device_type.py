@@ -24,10 +24,15 @@ def add_device_types(option='prod', map_dev=None,):
             dev_name = 'T1-' + dev_name
         net = net_box.dcim.device_types.get(model=dev_name)
 
-        for vendor in config.VENDORS:
+        for vendor in config.DEVICE_TYPES:
 
-            if dev_name[3:6:1] in config.VENDORS[vendor]:
-                manufacturer = net_box.dcim.manufacturers.get(name=vendor).id
+            if dev_name in config.DEVICE_TYPES[vendor]:
+                try:
+                    manufacturer = net_box.dcim.manufacturers.get(name=vendor).id
+                except BaseException:
+                    print('не найден вендор в системе NetBox ', vendor)
+                    return new_dev
+
                 configured_ports = config.DEVICE_TYPES[vendor].get(dev_name)
                 if configured_ports:
                     break

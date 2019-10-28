@@ -25,7 +25,23 @@ def init_ports(new_dev):
             if result_ports_list.get('power_ports'):
                 power_ports(id_dev, result_ports_list.get('power_ports'))
 
+            if result_ports_list.get('rear-port'):
+                rear_ports(id_dev, result_ports_list.get('rear-port'))
     return None
+
+
+def rear_ports(id_dev, rear_port):
+    result = []
+    for group in rear_port:
+        init_ports = search_pattern(group.get('name'))
+
+        for record in init_ports:
+            result.append({
+                            "device_type": id_dev,
+                            "name": record,
+                            "type": group.get('type_port')
+                            })
+    net_box.dcim.rear_port_templates.create(result)
 
 
 def power_ports(id_dev, power):

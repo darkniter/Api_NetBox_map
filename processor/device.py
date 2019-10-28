@@ -6,12 +6,13 @@ import processor.map_devices as map_devices
 import re
 from processor.utilities.slugify import slugify
 from processor.utilities.transliteration import transliterate
+from functools import lru_cache
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 parent_region_test = 'Magic_Placement'
 
 
-def device_name_init(map_dev, xl_map, region):
+def device_name_SWITCH(map_dev, xl_map, region):
     ip_mask = '/' + region[3].split('/')[-1]
     region = region[1].strip()
     result = []
@@ -107,6 +108,42 @@ def device_name_init(map_dev, xl_map, region):
     return create_dev
 
 
+def device_name_MODEM(init_map, region):
+    result = []
+
+    site_id = net_box.dcim.sites.get(name='MODEM_SITE').id
+    ip_mask = '/' + net_box.ipam.prefixes.get(site_id=site_id, role='sip').prefix.split('/')[-1]
+
+    for ip, dev in init_map.items():
+
+        type_id = data_dev_hook(dev['model'])
+
+        json_dev = {"name": dev['id'],
+                    "device_type": type_id,
+                    "device_role": 15,
+                    "site": site_id,
+                    "tags": ["test-0919", ],
+                    "comments": dev['description'],
+                    }
+
+        result.append([json_dev, {
+                                "primary_ip": ip + ip_mask,
+                                "addresses": dev.get('addresses'),
+                                }])
+
+    create_dev = add_devices(result)
+    return create_dev
+
+
+@lru_cache(maxsize=40)
+def data_dev_hook(model):
+
+    slug_model = slugify('T1-' + model)
+    type_id = net_box.dcim.device_types.get(slug=slug_model).id
+
+    return type_id
+
+
 def add_devices(json_names):
 
     create_devices = []
@@ -129,4 +166,4 @@ def add_devices(json_names):
 if __name__ == "__main__":
     loading_map = map_devices.map_load()
     xl_map = map_devices.excel_map()
-    device_name_init(loading_map, xl_map, 'Test_add_reg')
+    device_name_SWITCH(loading_map, xl_map, 'Test_add_reg')

@@ -6,7 +6,7 @@ from processor.utilities.transliteration import transliterate
 
 
 def from_json(map):
-    json_map = open(map, 'r')
+    json_map = open(map, 'r', encoding='utf-8-sig')
     python_map = json.load(json_map)
     return python_map
 
