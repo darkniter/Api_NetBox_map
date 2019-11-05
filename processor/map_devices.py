@@ -55,12 +55,12 @@ def hint_init(hint, val):
         return result
 
 
-def excel_map(fname):
+def excel_map(fname, csv_file):
     if os.path.isfile(fname):
         os.remove(fname)
     map_xl = {}
     csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
-    with open(config.CSV_PATH, 'r') as xl:
+    with open(csv_file, 'r') as xl:
         result = csv.reader(xl, 'csv')
         header = []
         for row in result:

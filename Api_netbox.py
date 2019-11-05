@@ -6,12 +6,12 @@ from processor.utilities.transliteration import transliterate
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
-def Switches(region):
+def Switches(region, vlans_map):
     ip_list = None
     # loaded maindevices
-    vlans_map = Vlan_init()
 
-    xl_map = map_devices.excel_map(config.VLAN_PATH_XL)
+    xl_map = map_devices.excel_map(config.PATH_XL, config.CSV_PATH)
+    xl_map.update(map_devices.excel_map(config.PATH_BROKEN, config.CSV_PATH_BROKEN))
 
     for street in vlans_map[transliterate(region)]:
         if street[8] == '/23':
@@ -29,7 +29,7 @@ def Switches(region):
         filtred_map = map_devices.map_load(config.MAP_LOCATION)
 
     # setup missing types
-        new_types = device_type.add_device_types('prod', filtred_map)
+        new_types = device_type.add_device_types('Switch', filtred_map)
 
         print("added:", new_types)
 
@@ -57,9 +57,10 @@ def Vlan_init(region=None):
 
 def Modems():
     vlans_list = []
+    ip_list = []
     filtred_map = map_devices.from_json(config.MODEMMAP)
 
-    new_types = device_type.add_device_types('prod', filtred_map)
+    new_types = device_type.add_device_types('Modem', filtred_map)
     print("added:", new_types)
 
     if len(new_types) > 0:
@@ -88,6 +89,8 @@ def load_conf_dev_type():
 
 
 def pre_conf():
+    ip_list = []
+    vlans_map = Vlan_init()
     regions = [
                 'Кабаново',
                 'Куровское',
@@ -96,11 +99,11 @@ def pre_conf():
                 'Орехово-Зуево'
                ]
     for load in regions:
-        Switches(load)
-    return
+        ip_list.append(Switches(load, vlans_map))
+    return ip_list
 
 
 if __name__ == "__main__":
-    # pre_conf()
-    Modems()
+    print(pre_conf())
+    # print(Modems())
     # load_conf_dev_type()

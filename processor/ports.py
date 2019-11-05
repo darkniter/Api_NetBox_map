@@ -17,7 +17,7 @@ def init_ports(new_dev):
                 print('Не задана карта портов для :', init.model)
                 continue
 
-            add_dev_temp(id_dev, interfaces_list)
+            print(init.display_name, add_dev_temp(id_dev, interfaces_list))
 
             if result_ports_list.get('consoles'):
                 console_ports(id_dev, result_ports_list.get('consoles'))
@@ -27,7 +27,6 @@ def init_ports(new_dev):
 
             if result_ports_list.get('rear-port'):
                 rear_ports(id_dev, result_ports_list.get('rear-port'))
-    return None
 
 
 def rear_ports(id_dev, rear_port):

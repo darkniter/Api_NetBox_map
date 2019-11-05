@@ -13,6 +13,7 @@ parent_region_test = 'Magic_Placement'
 
 
 def device_name_SWITCH(map_dev, xl_map, region):
+    device_role = net_box.dcim.device_roles.get(name='Switch').id
     ip_mask = '/' + region[3].split('/')[-1]
     region = region[1].strip()
     result = []
@@ -89,7 +90,7 @@ def device_name_SWITCH(map_dev, xl_map, region):
                 description['P_TRANSIT'] = False
             json_dev = {"name": name,
                         "device_type": type_id,
-                        "device_role": 2,
+                        "device_role": device_role,
                         "site": site_id,
                         "tags": ["test-0919", ],
                         "comments": description.pop('hint'),
@@ -110,7 +111,7 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
 def device_name_MODEM(init_map, region):
     result = []
-
+    device_role = net_box.dcim.device_roles.get(name='SIP').id
     site_id = net_box.dcim.sites.get(name='MODEM_SITE').id
     ip_mask = '/' + net_box.ipam.prefixes.get(site_id=site_id, role='sip').prefix.split('/')[-1]
 
@@ -120,7 +121,7 @@ def device_name_MODEM(init_map, region):
 
         json_dev = {"name": dev['id'],
                     "device_type": type_id,
-                    "device_role": 15,
+                    "device_role": device_role,
                     "site": site_id,
                     "tags": ["test-0919", ],
                     "comments": dev['description'],
@@ -164,6 +165,4 @@ def add_devices(json_names):
 
 
 if __name__ == "__main__":
-    loading_map = map_devices.map_load()
-    xl_map = map_devices.excel_map()
-    device_name_SWITCH(loading_map, xl_map, 'Test_add_reg')
+    pass

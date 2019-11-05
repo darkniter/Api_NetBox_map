@@ -5,12 +5,17 @@ from processor.utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
-def add_device_types(option='prod', map_dev=None,):
+def add_device_types(option='Switch', map_dev=None,):
     new_dev = []
     namespace_dev = []
-    if option == 'prod':
+    if option == 'Switch':
         for row in map_dev:
             namespace_dev.append(map_dev[row].get('description').split('\n')[0].split(' ')[0])
+        map_dev = namespace_dev
+
+    if option == 'Modem':
+        for row in map_dev:
+            namespace_dev.append(map_dev[row].get('model'))
         map_dev = namespace_dev
 
     if option == 'dev':
@@ -19,10 +24,12 @@ def add_device_types(option='prod', map_dev=None,):
                 namespace_dev.append(dev_type)
         map_dev = namespace_dev
 
+    map_dev = set(map_dev)
+
     for dev_name in map_dev:
-        if option == 'prod':
+        if option != 'dev':
             dev_name = 'T1-' + dev_name
-        net = net_box.dcim.device_types.get(model=dev_name)
+        net = net_box.dcim.device_types.get(slug=slugify(dev_name))
 
         for vendor in config.DEVICE_TYPES:
 
@@ -33,7 +40,7 @@ def add_device_types(option='prod', map_dev=None,):
                     print('не найден вендор в системе NetBox ', vendor)
                     return new_dev
 
-                configured_ports = config.DEVICE_TYPES[vendor].get(dev_name)
+                configured_ports = config.DEVICE_TYPES[vendor].get(dev_name.upper())
                 if configured_ports:
                     break
             else:
@@ -41,14 +48,14 @@ def add_device_types(option='prod', map_dev=None,):
                 configured_ports = None
 
         if net is None and configured_ports:
-            new_dev.append(add_device_type(manufacturer, dev_name))
+            new_dev.append(formatted_device_type(manufacturer, dev_name))
         elif not configured_ports:
             print('нет конфигурации портов:', dev_name)
 
     return new_dev
 
 
-def add_device_type(vendor, name):
+def formatted_device_type(vendor, name):
 
     create_list = {"manufacturer": vendor,
                    "model": name,
