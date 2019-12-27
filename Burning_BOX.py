@@ -2,6 +2,7 @@ from processor import ports, device, device_type, map_devices, ip_adresses, VLAN
 import processor.config as config
 import pynetbox
 from processor.utilities.transliteration import transliterate
+from functools import lru_cache
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
@@ -84,6 +85,7 @@ def load_conf_dev_type():
         ports.init_ports(new_types)
 
 
+@lru_cache(5000)
 def loader_maps():
     # loaded maindevices
     xl_map = map_devices.excel_map(config.PATH_XL, config.CSV_PATH)
@@ -120,8 +122,8 @@ def rename_removed():
             map_devices.map_filtration_init(filter_ip)
         # loaded items from map
             filtred_map = map_devices.map_load(config.MAP_LOCATION)
-            removed_dev.update({region: ReMoved.main(vlans_map, xl_map, filtred_map, net_box)})
-
+            removed_dev.update({region: ReMoved.main(region, vlans_map, xl_map, filtred_map, net_box)})
+    print()
     return removed_dev
 
 
@@ -144,12 +146,10 @@ def pre_conf():
 
 
 if __name__ == "__main__":
-    print(rename_removed())
-
-    # print(pre_conf())
-    # print(Modems())
-    # load_conf_dev_type()
-
+    print(pre_conf())
+    print(Modems())
+    load_conf_dev_type()
+    # print(rename_removed())
     # d#  old_name = ['TestName', 'Description', 'REMOVEDTest 44.7']
     # dev = net_box.dcim.devices.get(name=old_name[2])
     # # if dev.custom_fields['P_REMOVED'] == 1:

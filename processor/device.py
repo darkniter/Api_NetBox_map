@@ -80,34 +80,42 @@ def device_name_SWITCH(map_dev, xl_map, region):
         if name_prefix:
             name = name + '.' + name_prefix
 
+        if site_arr[3].get('P_REMOVED') == '1':
+            removed = net_box.dcim.devices.get(name="REMOVED " + name)
+        else:
+            removed = None
+
         name_type_tmp = dev.get('description')['hint'].split('\n')[0]
         name_type = re.sub(r'^\[font .*\]', '', name_type_tmp).split(' ')[0]
         type_dev = net_box.dcim.device_types.get(model='T1-' + name_type)
 
         if type_dev:
-            type_id = type_dev.id
-            description = dev.get('description')
-            if description['P_REMOVED'] == '1':
-                description['P_REMOVED'] = True
-            elif description['P_REMOVED'] == '0':
-                description['P_REMOVED'] = False
-            if description['P_TRANSIT'] == '1':
-                description['P_TRANSIT'] = True
-            elif description['P_TRANSIT'] == '0':
-                description['P_TRANSIT'] = False
-            json_dev = {"name": name,
-                        "device_type": type_id,
-                        "device_role": device_role,
-                        "site": site_id,
-                        "tags": ["test-0919", ],
-                        "comments": description.pop('hint'),
-                        "custom_fields": description
-                        }
+            if not removed:
+                type_id = type_dev.id
+                description = dev.get('description')
+                if description['P_REMOVED'] == '1':
+                    description['P_REMOVED'] = True
+                elif description['P_REMOVED'] == '0':
+                    description['P_REMOVED'] = False
+                if description['P_TRANSIT'] == '1':
+                    description['P_TRANSIT'] = True
+                elif description['P_TRANSIT'] == '0':
+                    description['P_TRANSIT'] = False
+                json_dev = {"name": name,
+                            "device_type": type_id,
+                            "device_role": device_role,
+                            "site": site_id,
+                            "tags": ["test-0919", ],
+                            "comments": description.pop('hint'),
+                            "custom_fields": description
+                            }
 
-            result.append([json_dev, {
-                                        "primary_ip": ip_address + ip_mask,
-                                        "addresses": dev.get('addresses'),
-                                        }])
+                result.append([json_dev, {
+                                            "primary_ip": ip_address + ip_mask,
+                                            "addresses": dev.get('addresses'),
+                                            }])
+            else:
+                print('Dev has removed but in netbox')
         else:
             print('Не установлен Тип в config для данного устройства:', name_type, name, ip_address)
 
