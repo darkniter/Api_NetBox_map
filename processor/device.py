@@ -74,9 +74,10 @@ def device_name_SWITCH(map_dev, xl_map, region):
         if name_prefix:
             name = name + '.' + name_prefix
 
-        name_type = dev.get('description')['hint'].split('\n')[0].split(' ')[0]
-
+        name_type_tmp = dev.get('description')['hint'].split('\n')[0]
+        name_type = re.sub(r'^\[font .*\]', '', name_type_tmp).split(' ')[0]
         type_dev = net_box.dcim.device_types.get(model='T1-' + name_type)
+
         if type_dev:
             type_id = type_dev.id
             description = dev.get('description')
@@ -110,6 +111,7 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
 
 def device_name_MODEM(init_map, region):
+
     result = []
     device_role = net_box.dcim.device_roles.get(name='SIP').id
     site_id = net_box.dcim.sites.get(name='MODEM_SITE').id

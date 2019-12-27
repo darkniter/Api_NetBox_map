@@ -6,12 +6,8 @@ from processor.utilities.transliteration import transliterate
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
 
-def Switches(region, vlans_map):
+def Switches(region, vlans_map, xl_map):
     ip_list = None
-    # loaded maindevices
-
-    xl_map = map_devices.excel_map(config.PATH_XL, config.CSV_PATH)
-    xl_map.update(map_devices.excel_map(config.PATH_BROKEN, config.CSV_PATH_BROKEN))
 
     for street in vlans_map[transliterate(region)]:
         if street[8] == '/23':
@@ -88,22 +84,71 @@ def load_conf_dev_type():
         ports.init_ports(new_types)
 
 
-def pre_conf():
-    ip_list = []
+def loader_maps():
+    # loaded maindevices
+    xl_map = map_devices.excel_map(config.PATH_XL, config.CSV_PATH)
+    xl_map.update(map_devices.excel_map(config.PATH_BROKEN, config.CSV_PATH_BROKEN))
+
     vlans_map = Vlan_init()
+
+    return vlans_map, xl_map
+
+
+def rename_removed():
+    vlans_map, xl_map = loader_maps()
+
     regions = [
+                'Орехово-Зуево',
                 'Кабаново',
                 'Куровское',
                 'Демихово',
                 'Ликино-Дулёво',
-                'Орехово-Зуево'
                ]
     for load in regions:
-        ip_list.append(Switches(load, vlans_map))
+        for street in vlans_map[transliterate(region)]:
+            if street[8] == '/23':
+                filter_ip = street[3].split('-')[-1].split('.')
+
+                filter_ip = ".".join([filter_ip[0], filter_ip[1], filter_ip[2]])
+
+            elif street[8] == '/22':
+                filter_ip = street[3].split('-')[-1].split('.')
+
+                filter_ip = ".".join(filter_ip[0:2:1])
+
+            map_devices.map_filtration_init(filter_ip)
+        # loaded items from map
+            filtred_map = map_devices.map_load(config.MAP_LOCATION)
+
+return
+
+
+def pre_conf():
+    ip_list = []
+
+    vlans_map, xl_map = loader_maps()
+    regions = [
+                'Орехово-Зуево',
+                'Кабаново',
+                'Куровское',
+                'Демихово',
+                'Ликино-Дулёво',
+               ]
+
+    for load in regions:
+        ip_list.append(Switches(load, vlans_map, xl_map))
+
     return ip_list
 
 
 if __name__ == "__main__":
-    print(pre_conf())
+    print(loader_maps())
+
+    # print(pre_conf())
     # print(Modems())
     # load_conf_dev_type()
+
+    # d#  old_name = ['TestName', 'Description', 'REMOVEDTest 44.7']
+    # dev = net_box.dcim.devices.get(name=old_name[2])
+    # # if dev.custom_fields['P_REMOVED'] == 1:
+    # #     dev.update({"name": "REMOVED " + old_name[0]})
