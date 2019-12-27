@@ -1,4 +1,4 @@
-from processor import ports, device, device_type, map_devices, ip_adresses, VLAN
+from processor import ports, device, device_type, map_devices, ip_adresses, VLAN, ReMoved
 import processor.config as config
 import pynetbox
 from processor.utilities.transliteration import transliterate
@@ -95,6 +95,7 @@ def loader_maps():
 
 
 def rename_removed():
+    removed_dev = {}
     vlans_map, xl_map = loader_maps()
 
     regions = [
@@ -104,7 +105,7 @@ def rename_removed():
                 'Демихово',
                 'Ликино-Дулёво',
                ]
-    for load in regions:
+    for region in regions:
         for street in vlans_map[transliterate(region)]:
             if street[8] == '/23':
                 filter_ip = street[3].split('-')[-1].split('.')
@@ -119,8 +120,9 @@ def rename_removed():
             map_devices.map_filtration_init(filter_ip)
         # loaded items from map
             filtred_map = map_devices.map_load(config.MAP_LOCATION)
+            removed_dev.update({region: ReMoved.main(vlans_map, xl_map, filtred_map, net_box)})
 
-return
+    return removed_dev
 
 
 def pre_conf():
@@ -142,7 +144,7 @@ def pre_conf():
 
 
 if __name__ == "__main__":
-    print(loader_maps())
+    print(rename_removed())
 
     # print(pre_conf())
     # print(Modems())

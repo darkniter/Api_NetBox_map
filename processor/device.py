@@ -2,7 +2,6 @@ import processor.config as config
 import pynetbox
 import processor.sites as sites
 import processor.regions as regions
-import processor.map_devices as map_devices
 import re
 from processor.utilities.slugify import slugify
 from processor.utilities.transliteration import transliterate
@@ -13,10 +12,15 @@ parent_region_test = 'Magic_Placement'
 
 
 def device_name_SWITCH(map_dev, xl_map, region):
+
     device_role = net_box.dcim.device_roles.get(name='Switch').id
+
     ip_mask = '/' + region[3].split('/')[-1]
+
     region = region[1].strip()
+
     result = []
+
     region = slugify(region)
 
     for init in map_dev:
@@ -34,11 +38,13 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
         if not site_arr:
             continue
+
         number_house = re.sub('[,/]', '_', dev.get('name').split()[-1].split('.')[0])
         site_name = (site_arr[0] + ' ' + number_house).strip()
         trans_name = site_arr[2]
         site_name = transliterate(site_name)
         site_info = net_box.dcim.sites.get(name=site_name.strip())
+
         if not site_info:
             site_info = net_box.dcim.sites.get(slug=slugify(site_name.strip()))
         region_info = net_box.dcim.regions.get(slug=region)
