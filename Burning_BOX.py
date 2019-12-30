@@ -146,9 +146,10 @@ def pre_conf():
 
 
 if __name__ == "__main__":
+    load_conf_dev_type()
     print(pre_conf())
     print(Modems())
-    load_conf_dev_type()
+
     # print(rename_removed())
     # d#  old_name = ['TestName', 'Description', 'REMOVEDTest 44.7']
     # dev = net_box.dcim.devices.get(name=old_name[2])
