@@ -148,7 +148,7 @@ def pre_conf():
 if __name__ == "__main__":
     load_conf_dev_type()
     print(pre_conf())
-    print(Modems())
+    # print(Modems())
 
     # print(rename_removed())
     # d#  old_name = ['TestName', 'Description', 'REMOVEDTest 44.7']

@@ -82,9 +82,9 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
         if site_arr[3].get('P_REMOVED') == '1':
             removed = net_box.dcim.devices.get(name="REMOVED " + name)
+            name = "REMOVED " + name
         else:
             removed = None
-            name = "REMOVED " + name
 
         name_type_tmp = dev.get('description')['hint'].split('\n')[0]
         name_type = re.sub(r'^\[font .*\]', '', name_type_tmp).split(' ')[0]
