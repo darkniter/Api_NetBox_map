@@ -28,7 +28,8 @@ def device_name_SWITCH(map_dev, xl_map, region):
         dev = map_dev[init]
 
         ip_address = dev.get('address')
-
+        if net_box.ipam.ip_addresses.get(address=ip_address):
+            continue
         site_arr = xl_map.get(ip_address)
 
         if (dev.get('description') and site_arr):
@@ -88,7 +89,7 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
         name_type_tmp = dev.get('description')['hint'].split('\n')[0]
         name_type = re.sub(r'^\[font .*\]', '', name_type_tmp).split(' ')[0]
-        type_dev = net_box.dcim.device_types.get(model='T1-' + name_type)
+        type_dev = net_box.dcim.device_types.get(model='' + name_type)
 
         if type_dev:
             if not removed:
@@ -156,7 +157,7 @@ def device_name_MODEM(init_map, region):
 @lru_cache(maxsize=40)
 def data_dev_hook(model):
 
-    slug_model = slugify('T1-' + model)
+    slug_model = slugify('' + model)
     type_id = net_box.dcim.device_types.get(slug=slug_model).id
 
     return type_id
@@ -167,9 +168,19 @@ def add_devices(json_names):
     create_devices = []
 
     for name in json_names:
+        name_double = name[0]['name']
         try:
             dev_id = net_box.dcim.devices.get(name=name[0]['name'])
+            if dev_id:
+                name_default = dev_id.name
+                count = 0
+                while dev_id:
+                    count += 1
+                    name_double = name_default + '_' + str(count)
+                    dev_id = net_box.dcim.devices.get(name=name_double)
+
             if not dev_id:
+                name[0]['name'] = name_double
                 created_dev = net_box.dcim.devices.create(name[0])
                 created_dev.update(name[1])
                 create_devices.append(created_dev)

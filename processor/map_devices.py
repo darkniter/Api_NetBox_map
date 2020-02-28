@@ -50,8 +50,7 @@ def hint_init(hint, val):
     if len(hint) == len(val):
         for element in hint.keys():
             count += 1
-            if element.find('RESERVED') == -1:
-                result.update({element: val[count]})
+            result.update({element: val[count]})
         return result
 
 
@@ -73,7 +72,14 @@ def excel_map(fname, csv_file):
                 row[0] = transliterate(row[0])
                 if len(row[4]) > 0:
                     row[3] = row[4]
-                map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
+                    if row[3] in map_xl:
+                        print(row[3])
+                    map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
+                elif len(row[3]) > 0:
+                    row[4] = row[3]
+                    if row[3] in map_xl:
+                        print(row[3])
+                    map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
                 if len(row[3]) == 0:
                     print({row[3]: [row[0], row[1]]})
 

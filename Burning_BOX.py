@@ -2,7 +2,12 @@ from processor import ports, device, device_type, map_devices, ip_adresses, VLAN
 import processor.config as config
 import pynetbox
 from processor.utilities.transliteration import transliterate
+from processor.utilities.Tester import comparsion
 from functools import lru_cache
+import json
+from os import remove
+from os import path
+
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 
@@ -86,13 +91,34 @@ def load_conf_dev_type():
 
 
 @lru_cache(5000)
-def loader_maps():
+def loader_maps(options_vlan='file', options_xl='file'):
     # loaded maindevices
-    xl_map = map_devices.excel_map(config.PATH_XL, config.CSV_PATH)
-    xl_map.update(map_devices.excel_map(config.PATH_BROKEN, config.CSV_PATH_BROKEN))
 
-    vlans_map = Vlan_init()
+    if options_vlan == 'load':
+        if path.isfile(config.PATHVLANS_INIT):
+            remove(config.PATHVLANS_INIT)
+        vlans_map = Vlan_init()
+        with open(config.PATHVLANS_INIT, 'a+', encoding='utf-8-sig') as vlans_map_init:
+            json.dump(vlans_map, vlans_map_init)
 
+    else:
+        with open(config.PATHVLANS_INIT, 'r', encoding='utf-8-sig') as vlans_map_init:
+            vlans_map = json.load(vlans_map_init)
+
+    if options_xl == 'load':
+        if path.isfile(config.XL_INIT):
+            remove(config.XL_INIT)
+
+        xl_map = map_devices.excel_map(config.PATH_XL, config.CSV_PATH)
+        broken = map_devices.excel_map(config.PATH_BROKEN, config.CSV_PATH_BROKEN)
+        comparsion(xl_map, broken)
+        xl_map.update(broken)
+
+        with open(config.XL_INIT, 'a+', encoding='utf-8-sig') as xl_map_init:
+            json.dump(xl_map, xl_map_init)
+    else:
+        with open(config.XL_INIT, 'r', encoding='utf-8-sig') as xl_map_init:
+            xl_map = json.load(xl_map_init)
     return vlans_map, xl_map
 
 
@@ -127,10 +153,11 @@ def rename_removed():
     return removed_dev
 
 
+@lru_cache
 def pre_conf():
     ip_list = []
 
-    vlans_map, xl_map = loader_maps()
+    vlans_map, xl_map = loader_maps('load', 'load')
     regions = [
                 'Орехово-Зуево',
                 'Кабаново',

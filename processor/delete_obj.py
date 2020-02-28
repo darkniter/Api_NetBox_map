@@ -106,7 +106,7 @@ if __name__ == "__main__":
     for vendor in config.DEVICE_TYPES:
         for model in config.DEVICE_TYPES[vendor]:
             list_dev.append(model)
-    delete_object(**{'name': 'device_types', 'list': list_dev})
+    # delete_object(**{'name': 'device_types', 'list': list_dev})
     list_regions = [
         'kb',
         'ld',
