@@ -28,9 +28,9 @@ def add_device_types(option='Switch', map_dev=None,):
                 namespace_dev.append(dev_type)
         map_dev = namespace_dev
 
-    map_dev = set(map_dev)
+    map_dev_name = set(map_dev)
 
-    for dev_name in map_dev:
+    for dev_name in map_dev_name:
         if option != 'dev':
             dev_name = dev_name
         net = net_box.dcim.device_types.get(slug=slugify(dev_name))

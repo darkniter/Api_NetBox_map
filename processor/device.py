@@ -9,6 +9,7 @@ from functools import lru_cache
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
 parent_region_test = 'Magic_Placement'
+prefixes = {'d.': 'd', 'proezd.': 'pr', 'b-r.': 'br', 'ul.': 'ul', 'sh.': 'sh'}
 
 
 def device_name_SWITCH(map_dev, xl_map, region):
@@ -28,8 +29,10 @@ def device_name_SWITCH(map_dev, xl_map, region):
         dev = map_dev[init]
 
         ip_address = dev.get('address')
+
         if net_box.ipam.ip_addresses.get(address=ip_address):
             continue
+
         site_arr = xl_map.get(ip_address)
 
         if (dev.get('description') and site_arr):
@@ -40,10 +43,19 @@ def device_name_SWITCH(map_dev, xl_map, region):
         if not site_arr:
             continue
 
-        number_house = re.sub('[,/]', '_', dev.get('name').split()[-1].split('.')[0])
+        site_arr[3]['P_RESERVED3'] = str(site_arr[2]) + '_' + str(site_arr[1])
+
+        number_house = re.sub('[,/]', '_', site_arr[1].split()[-1].split('.')[0])
         site_name = (site_arr[0] + ' ' + number_house).strip()
         trans_name = site_arr[2]
         site_name = transliterate(site_name)
+        try:
+            prefix = re.match(r'^[\w-]+\.', site_name).group(0)
+            if prefix in prefixes:
+                site_name = re.sub(r'^[\w-]+\.', prefixes[prefix], site_name)
+        except BaseException as ex:
+            print(ex)
+
         site_info = net_box.dcim.sites.get(name=site_name.strip())
 
         if not site_info:
@@ -73,9 +85,9 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
         names_regions = names_regions[-1]
 
-        name_prefix_tmp = dev.get('name').split('.')
+        name_prefix_tmp = site_arr[1].split('.')
         name_prefix_tmp.remove(name_prefix_tmp[0])
-        name_prefix = '.'.join(name_prefix_tmp)
+        name_prefix = transliterate('.'.join(name_prefix_tmp))
 
         name = '-'.join((names_regions, site.slug))
         if name_prefix:

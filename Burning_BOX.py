@@ -157,7 +157,8 @@ def rename_removed():
 def pre_conf():
     ip_list = []
 
-    vlans_map, xl_map = loader_maps('load', 'load')
+    vlans_map, xl_map = loader_maps('file', 'file')
+    # vlans_map, xl_map = loader_maps('load', 'load')
     regions = [
                 'Орехово-Зуево',
                 'Кабаново',
