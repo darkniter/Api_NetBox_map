@@ -22,7 +22,7 @@ def delete_object(**kwarg):
 
         for site in sites_list:
             try:
-                site_info = net_box.dcim.sites.get(slug=slugify(site))
+                site_info = net_box.dcim.sites.get(site.id)
             except pynetbox.core.query.RequestError as e:
                 print(e.error)
 
