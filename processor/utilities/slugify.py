@@ -1,7 +1,19 @@
 import unicodedata
 import re
+from functools import wraps
 
 
+def check_isascii(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if args[0].isascii():
+            return func(*args, **kwargs)
+        else:
+            raise ValueError("Value contain not ASCII symbols")
+    return wrapper
+
+
+@check_isascii
 def slugify(value, allow_unicode=False):
     """
     Convert to ASCII if 'allow_unicode' is False. Convert spaces to hyphens.

@@ -4,14 +4,13 @@ from processor.utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
-def add_regions(name, parent=None):
+def add_regions(name, parent=None, slug=None):
     name = name.strip()
     if parent:
         parent = parent.strip()
-    slug = slugify(name)
-
-    if parent:
         parent_id = net_box.dcim.regions.get(name=parent).id
+
+    slug = slug or slugify(name)
 
     if not net_box.dcim.regions.get(name=name):
         if parent and parent_id:
