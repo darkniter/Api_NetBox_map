@@ -119,7 +119,7 @@ def device_name_SWITCH(map_dev, xl_map, region):
                             "device_type": type_id,
                             "device_role": device_role,
                             "site": site_id,
-                            "tags": ["test-0919", ],
+                            "tags": config.TAGS,
                             "comments": description.pop('hint'),
                             "custom_fields": description
                             }
@@ -153,7 +153,7 @@ def device_name_MODEM(init_map, region):
                     "device_type": type_id,
                     "device_role": device_role,
                     "site": site_id,
-                    "tags": ["test-0919", ],
+                    "tags": config.TAGS,
                     "comments": dev['description'],
                     }
 

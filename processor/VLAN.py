@@ -61,7 +61,7 @@ def add_vlans_list(group, vlan_group):
                             "name": '-'.join([options[0], options[1], options[2]]),
                             "status": 1,
                             "role": role.id,
-                            "tags": ["test-0919", ],
+                            "tags": config.TAGS,
                             })
     return vlans_list
 
@@ -85,7 +85,7 @@ def add_prefixes(vlans, vlan_group):
                                                         "status": 1,
                                                         "role": net_box.ipam.roles.get(slug=options[1]).id,
                                                         "is_pool": 1,
-                                                        "tags": ["test-0919", ],
+                                                        "tags": config.TAGS,
                                                         }))
                 except ValueError:
                     print(options[-1], 'Вернул несколько значений. ДУБЛЬ')

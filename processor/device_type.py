@@ -64,7 +64,7 @@ def formatted_device_type(vendor, name):
     create_list = {"manufacturer": vendor,
                    "model": name,
                    "slug": slugify(name),
-                   "tags": ["test-0919", ],
+                   "tags": config.TAGS,
                    "is_full_depth": 0,
                    }
 

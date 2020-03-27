@@ -23,7 +23,7 @@ def add_site(trans_name, name, region):
         "name": name,
         "slug": slug,
         "region": region_id,
-        "tags": ["test-0919", ],
+        "tags": config.TAGS,
         "description": trans_name,
      })
 

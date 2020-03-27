@@ -19,7 +19,7 @@ def setup_ip(create_devices):
             ip_info = net_box.ipam.ip_addresses.create({
                                                         "address": device.primary_ip,
                                                         "interface": id_System,
-                                                        "tags": ["test-0919", ],
+                                                        "tags": config.TAGS,
                                                         })
             if device.addresses is not None:
                 for deprecation_dev in device.addresses:
@@ -27,7 +27,7 @@ def setup_ip(create_devices):
                                                         "address": deprecation_dev,
                                                         "interface": id_System,
                                                         "status": 3,
-                                                        "tags": ["test-0919", ],
+                                                        "tags": config.TAGS,
                                                     })
             ip_info.update({'addresses': device.addresses})
             info.update({id_dev: ip_info})
