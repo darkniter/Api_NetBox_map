@@ -2,7 +2,7 @@ import processor.config as config
 import pynetbox
 import processor.regions as regions
 from processor.utilities.slugify import slugify
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def add_site(trans_name, name, region):

@@ -3,7 +3,7 @@ import pynetbox
 from processor.utilities.slugify import slugify
 import re
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def add_device_types(option='Switch', map_dev=None,):

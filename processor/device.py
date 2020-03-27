@@ -7,7 +7,7 @@ from processor.utilities.slugify import slugify
 from processor.utilities.transliteration import transliterate
 from functools import lru_cache
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 parent_region_test = 'Magic_Placement'
 prefixes = {'d.': 'd', 'proezd.': 'pr', 'b-r.': 'br', 'ul.': 'ul', 'sh.': 'sh'}
 

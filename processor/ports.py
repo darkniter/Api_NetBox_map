@@ -2,7 +2,7 @@ from processor.utilities.split_pattern import search_pattern
 import processor.config as config
 import pynetbox
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def init_ports(new_dev):

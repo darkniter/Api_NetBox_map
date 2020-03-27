@@ -4,7 +4,7 @@ from processor.regions import add_regions as create_reg
 # import map_devices
 from processor.utilities.slugify import slugify
 import processor.map_devices as map_devices
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 Error_list = []
 
 

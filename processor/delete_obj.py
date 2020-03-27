@@ -3,7 +3,7 @@ import pynetbox
 import finder
 from utilities.slugify import slugify
 from utilities.transliteration import transliterate
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def delete_object(**kwarg):

@@ -9,7 +9,7 @@ from os import remove
 from os import path
 
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def Switches(region, vlans_map, xl_map):

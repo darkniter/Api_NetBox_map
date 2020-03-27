@@ -1,7 +1,7 @@
 import processor.config as config
 import pynetbox
 from processor.utilities.slugify import slugify
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def add_regions(name, parent=None):

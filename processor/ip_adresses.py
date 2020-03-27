@@ -1,7 +1,7 @@
 import processor.config as config
 import pynetbox
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def setup_ip(create_devices):
