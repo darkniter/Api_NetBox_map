@@ -97,8 +97,8 @@ def loader_maps(options_vlan='file', options_xl='file'):
         if path.isfile(config.PATHVLANS_INIT):
             remove(config.PATHVLANS_INIT)
         vlans_map = Vlan_init()
-        with open(config.PATHVLANS_INIT, 'a+', encoding='utf-8-sig') as vlans_map_init:
-            json.dump(vlans_map, vlans_map_init)
+        with open(config.PATHVLANS_INIT, 'w', encoding='utf-8-sig') as vlans_map_init:
+            json.dump(vlans_map, vlans_map_init, indent=4, sort_keys=True)
 
     else:
         with open(config.PATHVLANS_INIT, 'r', encoding='utf-8-sig') as vlans_map_init:
@@ -113,8 +113,8 @@ def loader_maps(options_vlan='file', options_xl='file'):
         comparsion(xl_map, broken)
         xl_map.update(broken)
 
-        with open(config.XL_INIT, 'a+', encoding='utf-8-sig') as xl_map_init:
-            json.dump(xl_map, xl_map_init)
+        with open(config.XL_INIT, 'w', encoding='utf-8-sig') as xl_map_init:
+            json.dump(xl_map, xl_map_init, indent=4, sort_keys=True)
     else:
         with open(config.XL_INIT, 'r', encoding='utf-8-sig') as xl_map_init:
             xl_map = json.load(xl_map_init)

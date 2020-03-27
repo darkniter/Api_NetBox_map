@@ -31,8 +31,8 @@ def map_filtration_init(filter_ip=None):
     if (os.path.isfile(fname)):
         os.remove(fname)
 
-    json_file = open(fname, 'a+')
-    json_file.write(json.dumps(filter(filter_ip)))
+    json_file = open(fname, 'w', encoding='utf-8-sig')
+    json_file.write(json.dumps(filter(filter_ip), indent=4, sort_keys=True))
     json_file.close()
 
 
@@ -59,7 +59,7 @@ def excel_map(fname, csv_file):
         os.remove(fname)
     map_xl = {}
     csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
-    with open(csv_file, 'r') as xl:
+    with open(csv_file, 'r', encoding='utf-8-sig') as xl:
         result = csv.reader(xl, 'csv')
         header = []
         for row in result:
@@ -83,8 +83,8 @@ def excel_map(fname, csv_file):
                 if len(row[3]) == 0:
                     print({row[3]: [row[0], row[1]]})
 
-    json_file = open(fname, 'a+', encoding='utf-8-sig')
-    json_file.write(json.dumps(map_xl))
+    json_file = open(fname, 'w', encoding='utf-8-sig')
+    json_file.write(json.dumps(map_xl, indent=4, sort_keys=True))
     json_file.close()
 
     return map_xl
@@ -107,8 +107,8 @@ def VLAN_map(filter_region=None):
     if (os.path.isfile(config.VLAN_PATH_JSON)):
         os.remove(config.VLAN_PATH_JSON)
 
-    json_file = open(config.VLAN_PATH_JSON, 'a+', encoding='utf-8-sig')
-    json_file.write(json.dumps(regions))
+    json_file = open(config.VLAN_PATH_JSON, 'w', encoding='utf-8-sig')
+    json_file.write(json.dumps(regions, indent=4, sort_keys=True))
     json_file.close()
 
     description = regions.pop('description')
