@@ -41,7 +41,7 @@ def add_device_types(option='Switch', map_dev=None,):
                 try:
                     manufacturer = net_box.dcim.manufacturers.get(slug=slugify(vendor)).id
                 except BaseException:
-                    print('не найден вендор в системе NetBox ', vendor)
+                    print('не найден вендор в системе NetBox:', vendor)
                     return new_dev
 
                 configured_ports = config.DEVICE_TYPES[vendor].get(dev_name.upper())

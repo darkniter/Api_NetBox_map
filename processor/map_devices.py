@@ -20,7 +20,7 @@ def filter(filtration_val=''):
         finded = python_map[row].get('address')
         if finded and finded.startswith(filtration_val):
             filtred.update({row: python_map[row]})
-    print('')
+    print('map_devices.filter() ', filtration_val)
     return filtred
 
 
@@ -73,12 +73,12 @@ def excel_map(fname, csv_file):
                 if len(row[4]) > 0:
                     row[3] = row[4]
                     if row[3] in map_xl:
-                        print(row[3])
+                        print("excel_map row[3]:", row[3])
                     map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
                 elif len(row[3]) > 0:
                     row[4] = row[3]
                     if row[3] in map_xl:
-                        print(row[3])
+                        print("excel_map row[3]:", row[3])
                     map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
                 if len(row[3]) == 0:
                     print({row[3]: [row[0], row[1]]})

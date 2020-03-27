@@ -33,16 +33,15 @@ def Switches(region, vlans_map, xl_map):
     # setup missing types
         new_types = device_type.add_device_types('Switch', filtred_map)
 
-        print("added:", new_types)
-
         if len(new_types) > 0:
+            print("Switch added:", new_types)
             # get type list for ports
             ports.init_ports(new_types)
 
         # add new devices from map
         info_ip = device.device_name_SWITCH(filtred_map, xl_map, street)
-        print(info_ip)
         if len(info_ip) > 0:
+            print("Switches()", info_ip)
             ip_list = ip_adresses.setup_ip(info_ip)
 
     return ip_list
@@ -63,9 +62,9 @@ def Modems():
     filtred_map = map_devices.from_json(config.MODEMMAP)
 
     new_types = device_type.add_device_types('Modem', filtred_map)
-    print("added:", new_types)
 
     if len(new_types) > 0:
+        print("Modem added:", new_types)
         # get type list for ports
         ports.init_ports(new_types)
 
@@ -75,6 +74,7 @@ def Modems():
     print('added_dev:', info_ip)
 
     if len(info_ip) > 0:
+        print("Modems()", info_ip)
         ip_list = ip_adresses.setup_ip(info_ip)
 
     return ip_list
@@ -83,9 +83,8 @@ def Modems():
 def load_conf_dev_type():
     new_types = device_type.add_device_types('dev')
 
-    print("added:", new_types)
-
     if len(new_types) > 0:
+        print("devs added:", new_types)
         # get type list for ports
         ports.init_ports(new_types)
 

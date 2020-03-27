@@ -40,7 +40,7 @@ def main_add_VLANs(regions):
                 except ValueError:
                     print(vlan, 'Вернул несколько значений. ДУБЛЬ')
             add_prefixes(VLANs, vlan_groups)
-        print(VLANs)
+    print("main_add_VLANs:", VLANs)
 
     return VLANs
 

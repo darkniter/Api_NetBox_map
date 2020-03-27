@@ -27,5 +27,5 @@ def add_site(trans_name, name, region):
         "description": trans_name,
      })
 
-    print(site_info)
+    print("add_site:", site_info)
     return site_info

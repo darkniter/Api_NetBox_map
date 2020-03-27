@@ -24,5 +24,5 @@ def add_regions(name, parent=None):
             region_info = net_box.dcim.regions.create({"name": name,
                                                        "slug": slug,
                                                        })
-        print(region_info)
+        print("add_regions:", region_info)
         return region_info
