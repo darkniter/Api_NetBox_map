@@ -1,21 +1,18 @@
 import processor.config as config
 import pynetbox
-import processor.regions as regions
 from processor.utilities.slugify import slugify
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def add_site(trans_name, name, region):
-    backup_region = region
-    parent_region_test = 'Magic_Placement'
+    backup_region = None
     region_id = None
 
-    backup_region = net_box.dcim.regions.get(slug=backup_region)
+    backup_region = net_box.dcim.regions.get(slug=region)
     if backup_region:
         region_id = backup_region.id
     elif not backup_region:
-        region = regions.add_regions(region, parent_region_test)
-        region_id = region.id
+        raise ValueError(f"No region_info for {trans_name}")
 
     slug = slugify(name)
 
