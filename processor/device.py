@@ -1,14 +1,12 @@
 import processor.config as config
 import pynetbox
 import processor.sites as sites
-import processor.regions as regions
 import re
 from processor.utilities.slugify import slugify
 from processor.utilities.transliteration import transliterate
 from functools import lru_cache
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
-parent_region_test = 'Magic_Placement'
 prefixes = {'d.': 'd', 'proezd.': 'pr', 'b-r.': 'br', 'ul.': 'ul', 'sh.': 'sh'}
 
 
@@ -45,10 +43,9 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
         site_arr[3]['P_RESERVED3'] = str(site_arr[2]) + '_' + str(site_arr[1])
 
-        number_house = re.sub('[,/]', '_', site_arr[1].split()[-1].split('.')[0])
+        number_house = transliterate(re.sub('[,/]', '_', site_arr[1].split()[-1].split('.')[0]))
         site_name = (site_arr[0] + ' ' + number_house).strip()
         trans_name = site_arr[2]
-        site_name = transliterate(site_name)
         try:
             prefix = re.match(r'^[\w-]+\.', site_name).group(0)
             if prefix in prefixes:
@@ -63,14 +60,13 @@ def device_name_SWITCH(map_dev, xl_map, region):
         region_info = net_box.dcim.regions.get(slug=region)
 
         if not region_info:
-            region = regions.add_regions(region, parent_region_test).slug
+            raise ValueError(f"No region_info for {map_dev[init]}")
 
         if site_info:
             site = site_info
-            site_id = site.id
         else:
             site = sites.add_site(trans_name + ' ' + number_house, site_name, region)
-            site_id = site.id
+        site_id = site.id
 
         names_regions = []
         region_tmp = region
