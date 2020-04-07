@@ -1,4 +1,4 @@
-from processor import ports, device, device_type, map_devices, ip_adresses, VLAN, ReMoved
+from processor import ports, device, device_type, map_devices, ip_adresses, VLAN, ReMoved, regions
 import processor.config as config
 import pynetbox
 from processor.utilities.transliteration import transliterate
@@ -7,6 +7,7 @@ from functools import lru_cache
 import json
 from os import remove
 from os import path
+from profilehooks import timecall, profile
 
 
 net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
@@ -15,7 +16,7 @@ net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 def Switches(region, vlans_map, xl_map):
     ip_list = None
 
-    for street in vlans_map[transliterate(region)]:
+    for street in vlans_map[transliterate(region[0])]:
         if street[8] == '/23':
             filter_ip = street[3].split('-')[-1].split('.')
 
@@ -89,7 +90,6 @@ def load_conf_dev_type():
         ports.init_ports(new_types)
 
 
-@lru_cache(5000)
 def loader_maps(options_vlan='file', options_xl='file'):
     # loaded maindevices
 
@@ -152,21 +152,25 @@ def rename_removed():
     return removed_dev
 
 
-@lru_cache
+@profile
 def pre_conf():
     ip_list = []
 
-    vlans_map, xl_map = loader_maps('file', 'file')
-    # vlans_map, xl_map = loader_maps('load', 'load')
-    regions = [
-                'Орехово-Зуево',
-                'Кабаново',
-                'Куровское',
-                'Демихово',
-                'Ликино-Дулёво',
+    region_list = [
+                ('Кабаново', 'kb'),
+                ('Демихово', 'dm'),
+                ('Куровское', 'ku'),
+                ('Ликино-Дулёво', 'ld'),
+                ('Орехово-Зуево', 'oz'),
                ]
 
-    for load in regions:
+    for region, slug in region_list:
+        regions.add_regions(transliterate(region), slug=slug)
+
+    # vlans_map, xl_map = loader_maps('file', 'file')
+    vlans_map, xl_map = loader_maps('load', 'load')
+
+    for load in region_list:
         ip_list.append(Switches(load, vlans_map, xl_map))
 
     return ip_list
