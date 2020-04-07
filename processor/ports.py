@@ -74,13 +74,14 @@ def ports_list(initiation_list):
 
 
 def console_ports(id_dev, ports_names):
-    for console_ports in ports_names:
-        init_console_ports_name = search_pattern(console_ports)
-        for port in init_console_ports_name:
-            net_box.dcim.console_port_templates.create({
-                                                        "device_type": id_dev,
-                                                        "name": port,
-                                                        })
+    for port in ports_names:
+        net_box.dcim.console_port_templates.create(
+            {
+                "device_type": id_dev,
+                "name": port["name"],
+                "type": port.get("type", "null"),
+            }
+        )
 
 
 def add_dev_temp(device_type_id, names):
