@@ -50,3 +50,6 @@ def parse_alphanumeric_range(string):
 
 if __name__ == "__main__":
     print(search_pattern('Gi0/[1-3]'))
+    print(search_pattern('[1-8]'))
+    print(search_pattern('[9]'))
+    print(search_pattern("FXS-[1-2]"))
