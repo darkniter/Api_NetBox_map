@@ -173,7 +173,7 @@ def pre_conf():
     for load in region_list:
         ip_list.append(Switches(load, vlans_map, xl_map))
 
-    return ip_list
+    return list(zip((r for r, _ in region_list), ip_list))
 
 
 if __name__ == "__main__":
