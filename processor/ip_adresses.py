@@ -18,7 +18,8 @@ def setup_ip(create_devices):
 
             ip_info = net_box.ipam.ip_addresses.create({
                                                         "address": device.primary_ip,
-                                                        "interface": id_System,
+                                                        "assigned_object_type": "dcim.interface",
+                                                        "assigned_object_id": id_System,
                                                         "tags": config.TAGS,
                                                         })
             if device.addresses is not None:
