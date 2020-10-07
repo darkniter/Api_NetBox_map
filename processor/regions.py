@@ -1,17 +1,16 @@
 import processor.config as config
 import pynetbox
 from processor.utilities.slugify import slugify
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
-def add_regions(name, parent=None):
+def add_regions(name, parent=None, slug=None):
     name = name.strip()
     if parent:
         parent = parent.strip()
-    slug = slugify(name)
-
-    if parent:
         parent_id = net_box.dcim.regions.get(name=parent).id
+
+    slug = slug or slugify(name)
 
     if not net_box.dcim.regions.get(name=name):
         if parent and parent_id:
@@ -24,5 +23,5 @@ def add_regions(name, parent=None):
             region_info = net_box.dcim.regions.create({"name": name,
                                                        "slug": slug,
                                                        })
-        print(region_info)
+        print("add_regions:", region_info)
         return region_info

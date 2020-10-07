@@ -20,7 +20,7 @@ def filter(filtration_val=''):
         finded = python_map[row].get('address')
         if finded and finded.startswith(filtration_val):
             filtred.update({row: python_map[row]})
-    print('')
+    print('map_devices.filter() ', filtration_val)
     return filtred
 
 
@@ -31,8 +31,8 @@ def map_filtration_init(filter_ip=None):
     if (os.path.isfile(fname)):
         os.remove(fname)
 
-    json_file = open(fname, 'a+')
-    json_file.write(json.dumps(filter(filter_ip)))
+    json_file = open(fname, 'w', encoding='utf-8-sig')
+    json_file.write(json.dumps(filter(filter_ip), indent=4, sort_keys=True))
     json_file.close()
 
 
@@ -50,8 +50,7 @@ def hint_init(hint, val):
     if len(hint) == len(val):
         for element in hint.keys():
             count += 1
-            if element.find('RESERVED') == -1:
-                result.update({element: val[count]})
+            result.update({element: val[count]})
         return result
 
 
@@ -60,7 +59,7 @@ def excel_map(fname, csv_file):
         os.remove(fname)
     map_xl = {}
     csv.register_dialect('csv', delimiter=';', quoting=csv.QUOTE_NONE)
-    with open(csv_file, 'r') as xl:
+    with open(csv_file, 'r', encoding='utf-8-sig') as xl:
         result = csv.reader(xl, 'csv')
         header = []
         for row in result:
@@ -73,12 +72,19 @@ def excel_map(fname, csv_file):
                 row[0] = transliterate(row[0])
                 if len(row[4]) > 0:
                     row[3] = row[4]
-                map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
+                    if row[3] in map_xl:
+                        print("excel_map row[3]:", row[3])
+                    map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
+                elif len(row[3]) > 0:
+                    row[4] = row[3]
+                    if row[3] in map_xl:
+                        print("excel_map row[3]:", row[3])
+                    map_xl.update({row[3]: [row[0], row[1], init_name, hint]})
                 if len(row[3]) == 0:
                     print({row[3]: [row[0], row[1]]})
 
-    json_file = open(fname, 'a+', encoding='utf-8-sig')
-    json_file.write(json.dumps(map_xl))
+    json_file = open(fname, 'w', encoding='utf-8-sig')
+    json_file.write(json.dumps(map_xl, indent=4, sort_keys=True))
     json_file.close()
 
     return map_xl
@@ -101,8 +107,8 @@ def VLAN_map(filter_region=None):
     if (os.path.isfile(config.VLAN_PATH_JSON)):
         os.remove(config.VLAN_PATH_JSON)
 
-    json_file = open(config.VLAN_PATH_JSON, 'a+', encoding='utf-8-sig')
-    json_file.write(json.dumps(regions))
+    json_file = open(config.VLAN_PATH_JSON, 'w', encoding='utf-8-sig')
+    json_file.write(json.dumps(regions, indent=4, sort_keys=True))
     json_file.close()
 
     description = regions.pop('description')

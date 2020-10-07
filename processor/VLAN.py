@@ -4,7 +4,7 @@ from processor.regions import add_regions as create_reg
 # import map_devices
 from processor.utilities.slugify import slugify
 import processor.map_devices as map_devices
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 Error_list = []
 
 
@@ -40,7 +40,7 @@ def main_add_VLANs(regions):
                 except ValueError:
                     print(vlan, 'Вернул несколько значений. ДУБЛЬ')
             add_prefixes(VLANs, vlan_groups)
-        print(VLANs)
+    print("main_add_VLANs:", VLANs)
 
     return VLANs
 
@@ -61,7 +61,7 @@ def add_vlans_list(group, vlan_group):
                             "name": '-'.join([options[0], options[1], options[2]]),
                             "status": 1,
                             "role": role.id,
-                            "tags": ["test-0919", ],
+                            "tags": config.TAGS,
                             })
     return vlans_list
 
@@ -85,7 +85,7 @@ def add_prefixes(vlans, vlan_group):
                                                         "status": 1,
                                                         "role": net_box.ipam.roles.get(slug=options[1]).id,
                                                         "is_pool": 1,
-                                                        "tags": ["test-0919", ],
+                                                        "tags": config.TAGS,
                                                         }))
                 except ValueError:
                     print(options[-1], 'Вернул несколько значений. ДУБЛЬ')

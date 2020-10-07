@@ -3,7 +3,7 @@ import pynetbox
 import finder
 from utilities.slugify import slugify
 from utilities.transliteration import transliterate
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def delete_object(**kwarg):
@@ -22,7 +22,7 @@ def delete_object(**kwarg):
 
         for site in sites_list:
             try:
-                site_info = net_box.dcim.sites.get(slug=slugify(site))
+                site_info = net_box.dcim.sites.get(site.id)
             except pynetbox.core.query.RequestError as e:
                 print(e.error)
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     for vendor in config.DEVICE_TYPES:
         for model in config.DEVICE_TYPES[vendor]:
             list_dev.append(model)
-    delete_object(**{'name': 'device_types', 'list': list_dev})
+    # delete_object(**{'name': 'device_types', 'list': list_dev})
     list_regions = [
         'kb',
         'ld',

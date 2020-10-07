@@ -2,7 +2,7 @@ from processor.utilities.split_pattern import search_pattern
 import processor.config as config
 import pynetbox
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def init_ports(new_dev):
@@ -17,7 +17,7 @@ def init_ports(new_dev):
                 print('Не задана карта портов для :', init.model)
                 continue
 
-            print(init.display_name, add_dev_temp(id_dev, interfaces_list))
+            print("init_ports():", init.display_name, add_dev_temp(id_dev, interfaces_list))
 
             if result_ports_list.get('consoles'):
                 console_ports(id_dev, result_ports_list.get('consoles'))
@@ -74,13 +74,14 @@ def ports_list(initiation_list):
 
 
 def console_ports(id_dev, ports_names):
-    for console_ports in ports_names:
-        init_console_ports_name = search_pattern(console_ports)
-        for port in init_console_ports_name:
-            net_box.dcim.console_port_templates.create({
-                                                        "device_type": id_dev,
-                                                        "name": port,
-                                                        })
+    for port in ports_names:
+        net_box.dcim.console_port_templates.create(
+            {
+                "device_type": id_dev,
+                "name": port["name"],
+                "type": port.get("type", "null"),
+            }
+        )
 
 
 def add_dev_temp(device_type_id, names):

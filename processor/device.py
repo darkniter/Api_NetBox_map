@@ -1,22 +1,25 @@
 import processor.config as config
 import pynetbox
 import processor.sites as sites
-import processor.regions as regions
-import processor.map_devices as map_devices
 import re
 from processor.utilities.slugify import slugify
 from processor.utilities.transliteration import transliterate
 from functools import lru_cache
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
-parent_region_test = 'Magic_Placement'
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
+prefixes = {'d.': 'd', 'proezd.': 'pr', 'b-r.': 'br', 'ul.': 'ul', 'sh.': 'sh'}
 
 
 def device_name_SWITCH(map_dev, xl_map, region):
+
     device_role = net_box.dcim.device_roles.get(name='Switch').id
+
     ip_mask = '/' + region[3].split('/')[-1]
+
     region = region[1].strip()
+
     result = []
+
     region = slugify(region)
 
     for init in map_dev:
@@ -24,6 +27,9 @@ def device_name_SWITCH(map_dev, xl_map, region):
         dev = map_dev[init]
 
         ip_address = dev.get('address')
+
+        if net_box.ipam.ip_addresses.get(address=ip_address):
+            continue
 
         site_arr = xl_map.get(ip_address)
 
@@ -34,24 +40,33 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
         if not site_arr:
             continue
-        number_house = re.sub('[,/]', '_', dev.get('name').split()[-1].split('.')[0])
+
+        site_arr[3]['P_RESERVED3'] = str(site_arr[2]) + '_' + str(site_arr[1])
+
+        number_house = transliterate(re.sub('[,/]', '_', site_arr[1].split()[-1].split('.')[0]))
         site_name = (site_arr[0] + ' ' + number_house).strip()
         trans_name = site_arr[2]
-        site_name = transliterate(site_name)
+        try:
+            prefix = re.match(r'^[\w-]+\.', site_name).group(0)
+            if prefix in prefixes:
+                site_name = re.sub(r'^[\w-]+\.', prefixes[prefix], site_name)
+        except BaseException as ex:
+            print(ex)
+
         site_info = net_box.dcim.sites.get(name=site_name.strip())
+
         if not site_info:
             site_info = net_box.dcim.sites.get(slug=slugify(site_name.strip()))
         region_info = net_box.dcim.regions.get(slug=region)
 
         if not region_info:
-            region = regions.add_regions(region, parent_region_test).slug
+            raise ValueError(f"No region_info for {map_dev[init]}")
 
         if site_info:
             site = site_info
-            site_id = site.id
         else:
             site = sites.add_site(trans_name + ' ' + number_house, site_name, region)
-            site_id = site.id
+        site_id = site.id
 
         names_regions = []
         region_tmp = region
@@ -66,42 +81,51 @@ def device_name_SWITCH(map_dev, xl_map, region):
 
         names_regions = names_regions[-1]
 
-        name_prefix_tmp = dev.get('name').split('.')
+        name_prefix_tmp = site_arr[1].split('.')
         name_prefix_tmp.remove(name_prefix_tmp[0])
-        name_prefix = '.'.join(name_prefix_tmp)
+        name_prefix = transliterate('.'.join(name_prefix_tmp))
 
         name = '-'.join((names_regions, site.slug))
         if name_prefix:
             name = name + '.' + name_prefix
 
+        if site_arr[3].get('P_REMOVED') == '1':
+            removed = net_box.dcim.devices.get(name="REMOVED " + name)
+            name = "REMOVED " + name
+        else:
+            removed = None
+
         name_type_tmp = dev.get('description')['hint'].split('\n')[0]
         name_type = re.sub(r'^\[font .*\]', '', name_type_tmp).split(' ')[0]
-        type_dev = net_box.dcim.device_types.get(model='T1-' + name_type)
+        type_dev = net_box.dcim.device_types.get(model='' + name_type)
 
         if type_dev:
-            type_id = type_dev.id
-            description = dev.get('description')
-            if description['P_REMOVED'] == '1':
-                description['P_REMOVED'] = True
-            elif description['P_REMOVED'] == '0':
-                description['P_REMOVED'] = False
-            if description['P_TRANSIT'] == '1':
-                description['P_TRANSIT'] = True
-            elif description['P_TRANSIT'] == '0':
-                description['P_TRANSIT'] = False
-            json_dev = {"name": name,
-                        "device_type": type_id,
-                        "device_role": device_role,
-                        "site": site_id,
-                        "tags": ["test-0919", ],
-                        "comments": description.pop('hint'),
-                        "custom_fields": description
-                        }
+            if not removed:
+                type_id = type_dev.id
+                description = dev.get('description')
+                if description['P_REMOVED'] == '1':
+                    description['P_REMOVED'] = True
+                elif description['P_REMOVED'] == '0':
+                    description['P_REMOVED'] = False
+                if description['P_TRANSIT'] == '1':
+                    description['P_TRANSIT'] = True
+                elif description['P_TRANSIT'] == '0':
+                    description['P_TRANSIT'] = False
+                json_dev = {"name": name,
+                            "device_type": type_id,
+                            "device_role": device_role,
+                            "site": site_id,
+                            "tags": config.TAGS,
+                            "comments": description.pop('hint'),
+                            "custom_fields": description
+                            }
 
-            result.append([json_dev, {
-                                        "primary_ip": ip_address + ip_mask,
-                                        "addresses": dev.get('addresses'),
-                                        }])
+                result.append([json_dev, {
+                                            "primary_ip": ip_address + ip_mask,
+                                            "addresses": dev.get('addresses'),
+                                            }])
+            else:
+                print('Dev has removed but in netbox')
         else:
             print('Не установлен Тип в config для данного устройства:', name_type, name, ip_address)
 
@@ -125,7 +149,7 @@ def device_name_MODEM(init_map, region):
                     "device_type": type_id,
                     "device_role": device_role,
                     "site": site_id,
-                    "tags": ["test-0919", ],
+                    "tags": config.TAGS,
                     "comments": dev['description'],
                     }
 
@@ -141,7 +165,7 @@ def device_name_MODEM(init_map, region):
 @lru_cache(maxsize=40)
 def data_dev_hook(model):
 
-    slug_model = slugify('T1-' + model)
+    slug_model = slugify('' + model)
     type_id = net_box.dcim.device_types.get(slug=slug_model).id
 
     return type_id
@@ -152,9 +176,19 @@ def add_devices(json_names):
     create_devices = []
 
     for name in json_names:
+        name_double = name[0]['name']
         try:
             dev_id = net_box.dcim.devices.get(name=name[0]['name'])
+            if dev_id:
+                name_default = dev_id.name
+                count = 0
+                while dev_id:
+                    count += 1
+                    name_double = name_default + '_' + str(count)
+                    dev_id = net_box.dcim.devices.get(name=name_double)
+
             if not dev_id:
+                name[0]['name'] = name_double
                 created_dev = net_box.dcim.devices.create(name[0])
                 created_dev.update(name[1])
                 create_devices.append(created_dev)

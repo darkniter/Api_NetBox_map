@@ -1,7 +1,7 @@
 import config
 import pynetbox
 from utilities.slugify import slugify
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
 def find_child_devices(name, func_mod):

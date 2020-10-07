@@ -1,16 +1,20 @@
 import processor.config as config
 import pynetbox
 from processor.utilities.slugify import slugify
+import re
 
-net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN)
+net_box = pynetbox.api(config.NETBOX_URL, config.TOKEN, threading=True)
 
 
-def add_device_types(option='Switch', map_dev=None,):
+def add_device_types(option='Switch', map_dev=None):
     new_dev = []
     namespace_dev = []
     if option == 'Switch':
         for row in map_dev:
-            namespace_dev.append(map_dev[row].get('description').split('\n')[0].split(' ')[0])
+            description_map = map_dev[row].get('description')
+            description_map = re.sub(r'^\[.*\]', '', description_map)
+            namespace_dev.append(description_map.split('\n')[0].split(' ')[0])
+
         map_dev = namespace_dev
 
     if option == 'Modem':
@@ -24,23 +28,24 @@ def add_device_types(option='Switch', map_dev=None,):
                 namespace_dev.append(dev_type)
         map_dev = namespace_dev
 
-    map_dev = set(map_dev)
+    map_dev_name = set(map_dev)
 
-    for dev_name in map_dev:
+    for dev_name in map_dev_name:
         if option != 'dev':
-            dev_name = 'T1-' + dev_name
+            dev_name = dev_name
         net = net_box.dcim.device_types.get(slug=slugify(dev_name))
 
         for vendor in config.DEVICE_TYPES:
 
             if dev_name in config.DEVICE_TYPES[vendor]:
                 try:
-                    manufacturer = net_box.dcim.manufacturers.get(name=vendor).id
+                    manufacturer = net_box.dcim.manufacturers.get(slug=slugify(vendor)).id
                 except BaseException:
-                    print('не найден вендор в системе NetBox ', vendor)
+                    print('не найден вендор в системе NetBox:', vendor)
                     return new_dev
 
-                configured_ports = config.DEVICE_TYPES[vendor].get(dev_name.upper())
+                configured_ports = config.DEVICE_TYPES[vendor].get(dev_name)
+                custom_fields = configured_ports.get('custom_fields', {})
                 if configured_ports:
                     break
             else:
@@ -48,22 +53,27 @@ def add_device_types(option='Switch', map_dev=None,):
                 configured_ports = None
 
         if net is None and configured_ports:
-            new_dev.append(formatted_device_type(manufacturer, dev_name))
+            new_dev.append(formatted_device_type(manufacturer, dev_name, custom_fields))
         elif not configured_ports:
             print('нет конфигурации портов:', dev_name)
 
     return new_dev
 
 
-def formatted_device_type(vendor, name):
+def formatted_device_type(vendor_id, name, custom_fields={}):
+    info = None
 
-    create_list = {"manufacturer": vendor,
+    create_list = {"manufacturer": vendor_id,
                    "model": name,
                    "slug": slugify(name),
-                   "tags": ["test-0919", ],
+                   "tags": config.TAGS,
                    "is_full_depth": 0,
+                   'custom_fields': custom_fields,
                    }
 
-    info = net_box.dcim.device_types.create(create_list)
+    try:
+        info = net_box.dcim.device_types.create(create_list)
+    except pynetbox.RequestError as e:
+        print(e.error)
 
     return info
